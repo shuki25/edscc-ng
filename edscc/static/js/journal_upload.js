@@ -12,14 +12,14 @@ $(function () {
         start: function (e) {  /* 2. WHEN THE UPLOADING PROCESS STARTS, SHOW THE MODAL */
             $("#modal-progress").modal("show");
             if(!clear_message){
-                $("#gallery tbody").html("")
-                clear_message = true
+                $("#gallery tbody").html("");
+                clear_message = true;
             }
         },
         stop: function (e) {  /* 3. WHEN THE UPLOADING PROCESS FINALIZE, HIDE THE MODAL */
             $("#modal-progress").modal("hide");
             // Ensure hide occurs after the fade animation has completed
-            setTimeout(function(){$("#modal-progress").modal("hide")}, 1000)
+            setTimeout(function(){$("#modal-progress").modal("hide")}, 1000);
         },
         progressall: function (e, data) {  /* 4. UPDATE THE PROGRESS BAR */
             var progress = parseInt(data.loaded / data.total * 100, 10);
