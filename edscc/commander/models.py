@@ -282,7 +282,7 @@ class JournalLog(models.Model):
     game_start = models.DateTimeField(blank=True, null=True, db_index=True)
     game_end = models.DateTimeField(blank=True, null=True, db_index=True)
     time_started = models.DateTimeField(blank=True, null=True)
-    progress_code = models.CharField(max_length=1, blank=True, null=True)
+    progress_code = models.CharField(max_length=1, default='Q')
     progress_percent = models.FloatField(blank=True, null=True)
     error_count = models.IntegerField(default=0)
 
