@@ -1,0 +1,162 @@
+general:
+  1:
+    header: "General"
+    item: "Words from Developer"
+    route: "blog"
+    icon: "fab fa-microblog"
+    group: ["General"]
+  2:
+    item: "Galnet News"
+    route: "galnet"
+    routes: ["galnet-detail"]
+    icon: "fas fa-rss-square"
+    counter: True
+    counter_sql: "select count(id) as counter from galnet_news where ed_date like '%3307'"
+    counter_title: "Number of Unread Articles"
+    counter_color: bg-green
+    group: ["General"]
+  3:
+    item: "GitHub"
+    route: "github"
+    icon: "fab fa-github"
+    group: ["General"]
+  4:
+    item: "Patreon"
+    route: "patreon"
+    icon: "fab fa-patreon"
+    group: ["General"]
+  5:
+    item: "Discord"
+    route: "discord"
+    icon: "fab fa-discord"
+    group: ["General"]
+
+commander:
+  1:
+    header: "Commander"
+    group: ["Commander"]
+  2:
+    item: "Information Sheet"
+    route: "profile"
+    icon: "fas fa-info"
+    group: [ "Commander" ]
+  3:
+    item: "Dashboard"
+    route: "player_dashboard"
+    icon: "fa fa-chart-area"
+    group: ["Commander"]
+  4:
+    item: "Shipyard"
+    route: "shipyard"
+    icon: "ed-asset ed-asset-icon-Coriolis"
+    group: ["Commander"]
+  5:
+    item: "Fleet Carrier"
+    route: "fleetcarrier"
+    icon: "fas fa-fighter-jet"
+    group: [ "Commander" ]
+  6:
+    item: "Activities Report"
+    route: "app_player_reports"
+    icon: "fa fa-chart-line"
+    group: ["Commander"]
+  7:
+    item: "Game Journal Log"
+    route: "game_journal"
+    icon: "fas fa-cloud-upload-alt"
+    alert: True
+    alert_sql: "select count(is_staff) as alert from auth_user where id=:user_id"
+    alert_color: "badge-warning"
+    alert_icon: "fas fa-exclamation"
+    group: ["Commander"]
+
+squadron:
+  1:
+    header: "Squadron"
+    group: ["Squadron"]
+  2:
+    item: "Announcements"
+    route: "show_announcements"
+    icon: "fa fa-bullhorn"
+    counter: True
+    counter_sql: "select a.counter + b.counter as counter from (select 1 as id, count(a.id) as counter from announcement a left join user_profile u on a.squadron_id=u.squadron_id left join read_history rh on rh.announcement_id=a.id and rh.user_id=u.id where u.id=:user_id and a.published_flag=1 and a.publish_at < now() and rh.id is null) a, (select 1 as id, count(m.id) as counter from motd m left join read_history rh on rh.motd_id=m.id and rh.user_id=:user_id where m.show_flag=1 and rh.id is null) b where a.id=b.id;"
+    counter_color: "red"
+    counter_title: "Unread Messages"
+    group: ["Squadron"]
+  3:
+    item: "Dashboard"
+    route: "dashboard"
+    icon: "fa fa-chart-area"
+    group: ["Squadron"]
+  4:
+    item: "Leaderboard"
+    route: "leaderboard"
+    icon: "ed-asset ed-asset-icon-leaderboard_website margin-r-5"
+    group: ["Squadron"]
+  #    5:
+  #        item: "Squadron Activities"
+  #        icon: "fa fa-line-chart"
+  6:
+    item: "Roster"
+    route: "app_members"
+    icon: "fa fa-user-astronaut"
+    group: ["Squadron"]
+
+
+  12:
+    header: "Management"
+    group: ["Manager"]
+    roles: [ "ROLE_ADMIN", "CAN_VIEW_REPORTS" ]
+  #    13:
+  #        item: "Criminal History"
+  #        route: ""
+  #        icon: "fa fa-shield-alt"
+  #        roles: ["ROLE_ADMIN", "CAN_VIEW_REPORTS"]
+  14:
+    item: "Commander Performance"
+    route: "to-do"
+    icon: "fa fa-tachometer-alt"
+    roles: [ "ROLE_ADMIN", "CAN_VIEW_REPORTS" ]
+    group: ["Manager"]
+  15:
+    item: "Commander Activities"
+    route: "mgr_reports"
+    icon: "fa fa-fighter-jet"
+    star: True
+    roles: [ "ROLE_ADMIN", "CAN_VIEW_REPORTS" ]
+    group: ["Manager"]
+  16:
+    item: "Promotion Voting"
+    route: "to-do"
+    icon: "fa fa-check-square"
+    roles: [ "ROLE_ADMIN", "CAN_VIEW_REPORTS" ]
+    group: ["Manager"]
+admin:
+  1:
+    header: "Squadron Owner"
+    group: ["Squadron Owner"]
+  2:
+    item: "Squadron Settings"
+    route: "admin_squadron_settings"
+    icon: "fa fa-tools"
+    star: True
+    roles: [ "ROLE_ADMIN" ]
+    group: ["Squadron Owner"]
+  3:
+    item: "Manage Announcements"
+    route: "admin_list_announcements"
+    routes: [ "admin_list_announcements", "admin_announcements_edit", "admin_announcements_new" ]
+    icon: "fa fa-bullhorn"
+    roles: [ "ROLE_ADMIN","ROLE_EDITOR" ]
+    group: ["Squadron Owner"]
+  4:
+    item: "Manage Members"
+    route: "admin_list_members"
+    routes: [ "admin_list_members","admin_edit_member" ]
+    icon: "ed-asset-icon-members margin-r-5"
+    counter: True
+    counter_sql: "select count(u.id) as counter from user_profile u where u.squadron_id in (select squadron_id from user_profile where id=:user_id) and u.status_id=1"
+    counter_color: "orange"
+    counter_title: "Pending Members"
+    roles: [ "ROLE_ADMIN","CAN_EDIT_USER","CAN_CHANGE_STATUS","CAN_EDIT_PERMISSIONS","CAN_VIEW_HISTORY" ]
+    group: ["Squadron Owner"]

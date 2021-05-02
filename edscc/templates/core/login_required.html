@@ -1,0 +1,45 @@
+{% extends 'simple_base.html' %}
+{% load i18n %}
+{% load socialaccount %}
+{% block class %} dark-mode login-page{% endblock %}
+{% block body %}
+    <div class="login-box" style="width: 400px;">
+        <div class="content">
+            <!-- Commander box -->
+            <div class="card card-danger shadow" style="height: 300px;">
+                <div class="card-header text-center">
+                    <h1 class="h1 text-bold"><i class="nav-icon fas fa-sign-in-alt"></i> &nbsp;{% trans 'Login Required' %}
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-12 text-center">
+                                <h1 class="h3"><i class="fas fa-exclamation-triangle text-red"></i> &nbsp;{% trans 'Restricted Access' %}</h1>
+                            </div>
+                        </div>
+                        <div class="row" style="height: 80px; margin-top: 10px;">
+                            <div class="col-md-12 text-center">
+                                <p>{% blocktrans %}
+                                We are sorry, the page you are trying to<br /> access is restricted to signed-in
+                                    users.
+                                {% endblocktrans %}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a class="btn btn-primary btn-block" href="{% provider_login_url "frontier" %}"><i
+                                        class="text-large fas fa-sign-in-alt"></i> Sign In</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ block.super }}
+{% endblock %}

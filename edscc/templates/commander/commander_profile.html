@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load gravatar %}
+{% load account %}
+{% load humanize %}
+{% block content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3">
+                    {% include 'commander/profile_card.html' %}
+                    <div class="card card-orange card-outline shadow">
+                        <h5 class="card-header text-orange">
+                            {% trans 'Reputation' %}
+                        </h5>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {% lorem %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card card-orange card-outline card-outline-tabs border-top-0" style="height: 735px;">
+                        <div class="card-header p-0 border-bottom-0">
+                            <ul class="nav nav-tabs" id="info-sheet" role="tablist">
+                                <li class="pt-2 px-3">
+                                    <h4 class="card-title">{% trans 'Info Sheet' %}</h4>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="skills-tab" data-toggle="pill"
+                                       href="#skills" role="tab" aria-controls="skills"
+                                       aria-selected="true">{% trans 'Skills' %}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="reputation-tab" data-toggle="pill"
+                                       href="#reputation" role="tab"
+                                       aria-controls="reputation" aria-selected="false">{% trans 'Reputation' %}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="stats-tab" data-toggle="pill"
+                                       href="#stats" role="tab"
+                                       aria-controls="stats" aria-selected="false">{% trans 'Statistics' %}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="powerplay-tab" data-toggle="pill"
+                                       href="#powerplay" role="tab"
+                                       aria-controls="powerplay" aria-selected="false">{% trans 'Powerplay' %}</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content" id="custom-tabs-four-tabContent">
+                                <div class="tab-pane fade show active" id="skills" role="tabpanel"
+                                     aria-labelledby="skills-tab">
+                                    <div class="card card-orange card-outline shadow">
+                                        <h5 class="card-header text-orange">
+                                            {% trans 'Commander Skill Coverage' %}
+                                        </h5>
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                <canvas id="skill-chart" width="400" height="400"
+                                                        class="shadow"></canvas>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="reputation" role="tabpanel"
+                                     aria-labelledby="reputation-tab">
+                                    Reputation: Mauris tincidunt mi at erat gravida, eget tristique urna bibendum. Mauris pharetra
+                                    purus ut ligula tempor, et vulputate metus facilisis. Lorem ipsum dolor sit amet,
+                                    consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et
+                                    ultrices posuere cubilia Curae; Maecenas sollicitudin, nisi a luctus interdum, nisl
+                                    ligula placerat mi, quis posuere purus ligula eu lectus. Donec nunc tellus,
+                                    elementum sit amet ultricies at, posuere nec nunc. Nunc euismod pellentesque diam.
+                                </div>
+                                <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats-tab">
+                                  <div class="card" style="height: 610px; overflow-y: auto;">
+                                    {% include 'commander/statistics.html' %}
+                                  </div>
+                                </div>
+                                <div class="tab-pane fade" id="powerplay" role="tabpanel"
+                                     aria-labelledby="powerplay-tab">
+                                    Powerplay: Pellentesque vestibulum commodo nibh nec blandit. Maecenas neque magna, iaculis
+                                    tempus turpis ac, ornare sodales tellus. Mauris eget blandit dolor. Quisque
+                                    tincidunt venenatis vulputate. Morbi euismod molestie tristique. Vestibulum
+                                    consectetur dolor a vestibulum pharetra. Donec interdum placerat urna nec pharetra.
+                                    Etiam eget dapibus orci, eget aliquet urna. Nunc at consequat diam. Nunc et felis ut
+                                    nisl commodo dignissim. In hac habitasse platea dictumst. Praesent imperdiet
+                                    accumsan ex sit amet facilisis.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="float-right text-sm">Skill sheet last updated on Mar 23, 2021</span>
+                        </div>
+                        <!-- /.card -->
+                    </div>
+
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-orange card-outline shadow">
+                        <h5 class="card-header text-orange">
+                            {% trans 'Last Docked' %}
+                        </h5>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {% lorem %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    {{ block.super }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+
+    <script>
+        $(() => {
+            var chartColors = {
+                red: 'rgb(255, 99, 132)',
+                orange: 'rgb(255, 159, 64)',
+                yellow: 'rgb(255, 205, 86)',
+                green: 'rgb(75, 192, 192)',
+                blue: 'rgb(54, 162, 235)',
+                purple: 'rgb(153, 102, 255)',
+                grey: 'rgb(231,233,237)'
+            };
+
+            var color = Chart.helpers.color;
+
+            var ctx = $('#skill-chart');
+            var myChart = new Chart(ctx, {
+                type: 'radar',
+                responsive: true,
+                scaleFontColor: '#fff',
+                data: {
+                    labels: ['Combat', 'Trader', 'Explorer', 'Mercenary', 'Exobiologist'],
+                    datasets: [{
+                        label: '% of skills gained',
+                        data: [{{ skill_web.combat }}, {{ skill_web.trader }}, {{ skill_web.explorer }},
+                            {{ skill_web.mercenary }}, {{ skill_web.exobiologist }}],
+                        backgroundColor: color(chartColors.blue).alpha(0.2).rgbString(),
+                        borderColor: chartColors.blue,
+                        pointBackgroundColor: chartColors.blue,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            fontColor: 'white',
+                            size: 12
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: false
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        },
+                    },
+                    layout: {
+                        padding: 25
+                    },
+                    scale: {
+                        ticks: {
+                            beginAtZero: true,
+                            fontColor: 'white', // labels such as 10, 20, etc
+                            showLabelBackdrop: false // hide square behind text
+                        },
+                        pointLabels: {
+                            fontColor: 'white' // labels around the edge like 'Running'
+                        },
+                        gridLines: {
+                            color: 'rgba(255, 255, 255, 0.2)'
+                        },
+                        angleLines: {
+                            color: 'white' // lines radiating from the center
+                        }
+                    }
+                }
+            });
+        });
+
+    </script>
+{% endblock %}

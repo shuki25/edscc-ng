@@ -1,0 +1,74 @@
+{% extends 'simple_base.html' %}
+{% load i18n %}
+{% block class %} dark-mode login-page{% endblock %}
+{% block body %}
+    <div class="login-box" style="width: 600px;">
+        <div class="content">
+            <!-- Commander box -->
+            <div class="card card-orange shadow" style="height: 400px;">
+                <div class="card-header text-center">
+                    <h1 class="h1"><i class="nav-icon fas fa-user-astronaut"></i> &nbsp;{% trans 'Setting up your account' %}
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="overlay-wrapper">
+                        <p>{% blocktrans %}
+                        Hello Commander, welcome to the Squadron Command Center. Because it is your first time logging into this site, please wait while your account is being created and populated with the data from Frontier Development.
+                        {% endblocktrans %}</p>
+                        <div class="text-center" style="margin-top: 40px;">
+                            <div><i class="fas fa-3x fa-sync-alt fa-spin"></i><div class="text-bold pt-2">{% trans 'Setting up' %}...</div></div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="progress" style="height: 2px;">
+                      <div id="progress_bar" class="progress-bar bg-orange" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer text-sm" id="status_bar">
+                    {% trans 'Status' %}: {% trans 'Initializing' %}...
+                </div>
+                <!-- /.card-footer-->
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    {{ block.super }}
+<script>
+$(() => {
+    const path = 'wss://' + window.location.host + '/ws/commander/begin_setup/';
+    const statusSocket = new WebSocket(path);
+
+    statusSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        console.log(data.message);
+        console.log(data.server_code);
+        $('#progress_bar').attr('aria-valuenow', data.progress_value);
+        $('#progress_bar').attr('style', 'width:' + data.progress_value + '%;');
+        if (data.message == 'DONE') {
+            setTimeout(() => {$(location).attr('href', '/?new=1');}, 1500);
+        } else {
+            $('#status_bar').html(data.message);
+        }
+    }
+
+    statusSocket.onclose = function (e) {
+        console.log(e.data);
+        console.log('disconnected');
+       // alert('unexpected disconnect');
+       // $(location).attr('href', '/');
+    }
+
+    statusSocket.onopen = function (e) {
+        console.log('opening websocket')
+        console.log('sending message')
+        statusSocket.send(JSON.stringify({
+                'message': 'start-setup'
+            }));
+    }
+});
+
+</script>
+{% endblock %}

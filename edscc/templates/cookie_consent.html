@@ -1,0 +1,23 @@
+<!-- Cookie Consent -->
+    <link rel="stylesheet" type="text/css"
+          href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+    <script>
+        window.addEventListener("load", function () {
+            if (window.cookieconsent != undefined && 'function' === typeof window.cookieconsent.initialise) {
+                window.cookieconsent.initialise({
+                    "palette": {
+                        "popup": {
+                            "background": "#000"
+                        },
+                        "button": {
+                            "background": "#f1d600"
+                        }
+                    },
+                    "content": {
+                        "message": "We use cookies to personalise content and to analyze our traffic. We will not share any information about your use of our site with any social media, advertising and analytics partners who may combine it with other information you’ve provided to them or they’ve collected from your use of their services."
+                    }
+                });
+            }
+        });
+    </script>

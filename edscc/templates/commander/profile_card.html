@@ -1,0 +1,112 @@
+{% load i18n %}
+{% load gravatar %}
+{% load account %}
+{% load humanize %}
+<div class="card card-orange card-outline shadow">
+    <div class="card-body box-profile">
+        <div class="text-center">
+            <img class="profile-user-img img-responsive img-circle mb-3 mt-3"
+                 src="{{ user.email|default:"shane.huston@gmail.com"|gravatar_url }}"
+                 alt="User profile picture">
+        </div>
+        <h3 class="profile-username text-center"><i
+                class="ed-asset ed-asset-icon-squadron-rank-{{ app.user.customRank.orderId|add:'5' }}"></i>
+            {% trans 'CMDR' %} {{ user_profile.commander_name }}</h3>
+        <p class="text-muted text-center">
+            Overlord{{ user.customRank.name }}</p>
+
+        <ul class="list-group list-group-unbordered list-group mb-3">
+            <li class="list-group-item">
+                <b>{% trans 'Combat' %}</b> <span class="float-right text-sm">{% trans commander.combat.name %}</span>
+            </li>
+            <li class="list-group-item">
+                <b>{% trans 'Trader' %}</b> <span class="float-right text-sm">{% trans commander.trade.name %}</span>
+            </li>
+            <li class="list-group-item">
+                <b>{% trans 'Explorer' %}</b> <span class="float-right text-sm">{% trans commander.explore.name %}</span>
+            </li>
+            <li class="list-group-item">
+                <b>{% trans 'Mercenary' %}</b> <span class="float-right text-sm">{% trans commander.mercenary.name %}</span>
+            </li>
+            <li class="list-group-item">
+                <b>{% trans 'Exobiologist' %}</b> <span class="float-right text-sm">{% trans commander.exobiologist.name %}</span>
+            </li>
+        </ul>
+
+    </div>
+
+
+{#    <div class="box-body">#}
+{#        <div class="clearfix">#}
+{#            <span class="pull-left">Combat</span>#}
+{#            <small class="pull-right">#}
+{#                {{ commander.combat.name }}</small>#}
+{#        </div>#}
+{#        <div class="progress xs">#}
+{#            <div class="progress-bar progress-bar-warning"#}
+{#                 style="width: {{ commander.combatProgress }}%;"></div>#}
+{#        </div>#}
+{#        <div class="clearfix">#}
+{#            <span class="pull-left">Trade</span>#}
+{#            <small class="pull-right">#}
+{#                {{ commander.trade.name }}</small>#}
+{#        </div>#}
+{#        <div class="progress xs">#}
+{#            <div class="progress-bar progress-bar-warning"#}
+{#                 style="width: {{ commander.tradeProgress }}%;"></div>#}
+{#        </div>#}
+{#        <div class="clearfix">#}
+{#            <span class="pull-left">Exploration</span>#}
+{#            <small class="pull-right">#}
+{#                {{ commander.explore.name }}</small>#}
+{#        </div>#}
+{#        <div class="progress xs">#}
+{#            <div class="progress-bar progress-bar-warning"#}
+{#                 style="width: {{ commander.exploreProgress }}%;"></div>#}
+{#        </div>#}
+{#        <div class="divider"></div>#}
+{#        <div class="clearfix">#}
+{#            <span class="pull-left">Federation</span>#}
+{#            <small class="pull-right">#}
+{#                {{ commander.federation.name }}</small>#}
+{#        </div>#}
+{#        <div class="progress xs">#}
+{#            <div class="progress-bar progress-bar-warning"#}
+{#                 style="width: {{ commander.federationProgress }}%;"></div>#}
+{#        </div>#}
+{#        <div class="clearfix">#}
+{#            <span class="pull-left">Empire</span>#}
+{#            <small class="pull-right">#}
+{#                {{ commander.empire.name }}</small>#}
+{#        </div>#}
+{#        <div class="progress xs">#}
+{#            <div class="progress-bar progress-bar-warning"#}
+{#                 style="width: {{ commander.empireProgress }}%;"></div>#}
+{#        </div>#}
+{#        <div class="clearfix">#}
+{#            <span class="pull-left">CQC</span>#}
+{#            <small class="pull-right">{{ commander.cqc.name }}</small>#}
+{#        </div>#}
+{#        <div class="progress xs">#}
+{#            <div class="progress-bar progress-bar-warning"#}
+{#                 style="width: {{ commander.cqcProgress }}%;"></div>#}
+{#        </div>#}
+{#    </div>#}
+{#    <div class="card-header with-border">Wealth</div>#}
+{#    <div class="box-body">#}
+{#        <div class="clearfix">#}
+{#            <span class="pull-left">Total Asset</span>#}
+{#            <span class="pull-right">{{ commander.asset }}</span>#}
+{#        </div>#}
+{#        <div class="clearfix">#}
+{#            <span class="pull-left">Credit</span>#}
+{#            <span class="pull-right">{{ commander.credits }}</span>#}
+{#        </div>#}
+{#        <div class="clearfix">#}
+{#            <span class="pull-left">Loan</span>#}
+{#            <span class="pull-right">{{ commander.loan }}</span>#}
+{#        </div>#}
+{#    </div>#}
+{#    <!-- /.box-body -->#}
+</div>
+<!-- /.box -->

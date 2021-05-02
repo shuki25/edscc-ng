@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load markdownify %}
+{% block content %}
+    <div class="container-fluid">
+        {% if carousel %}
+            <div class="row">
+                <div class="col-md-12">
+                    {% include 'core/galnet-carousel.html' %}
+                </div>
+            </div>
+        {% endif %}
+        <div class="mt-3"></div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-9">
+                    <div class="card card-outline card-orange shadow">
+                        <h5 class="card-header text-orange">
+                            {{ article.title }}<br><span class="text-sm">{{ article.ed_date }}</span>
+                        </h5>
+                        <div class="card-body">
+                            <img class="d-block w-100" src="{{ galnet_img_url }}{{ article.first_image }}.png" style="height: 400px; object-fit: cover"/>
+                            <p class="card-text">
+                                {{ article.body|markdownify }}
+                            </p>
+                        </div>
+                        <div class="card-footer text-sm text-orange text-right">
+                            {{ article.ed_date }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-outline card-orange shadow">
+                        <h5 class="card-header text-orange">
+                            {% trans 'More in Galnet News' %}
+                        </h5>
+                        <div class="card-body">
+                            // To Do
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

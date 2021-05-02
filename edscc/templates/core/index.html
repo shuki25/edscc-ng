@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load markdownify %}
+{% block content %}
+<div class="content">
+    <div class="container-fluid">
+        {% if carousel %}
+        <div class="row">
+            <div class="col-md-12">
+                {% include 'core/carousel.html' %}
+            </div>
+        </div>
+        {% endif %}
+        <div class="mt-3"></div>
+        <div class="row">
+            {% for item in cg_list %}
+            <div class="col-md-6">
+                <div class="card card-outline card-orange shadow">
+                    <h5 class="card-header text-orange">
+                        {% trans 'Community Goal' %}: {{ item.title }}
+                    </h5>
+                    <div class="card-body text-sm text-justify">
+{#                        <p class="card-text text-sm">#}
+                            {{ item.news|markdownify }}
+{#                        </p>#}
+                    </div>
+                    <div class="card-footer font-xs">
+                        {% blocktrans with item.expiry|naturalday as cg_date%}
+                        Community Goal ends on {{ cg_date }}
+                        {% endblocktrans %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="col-md-6">
+                <div class="card card-outline card-orange shadow">
+                    <h5 class="card-header text-orange">
+                        משהו אחר
+                    </h5>
+                    <div class="card-body">
+                        <p class="card-text">
+                            {% lorem %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-outline card-orange shadow">
+                    <h5 class="card-header">
+                        Card title
+                    </h5>
+                    <div class="card-body">
+                        <p class="card-text">
+                            Card content
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        Card footer
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-outline card-orange shadow">
+                    <h5 class="card-header">
+                        Card title
+                    </h5>
+                    <div class="card-body">
+                        <p class="card-text">
+                            Card content
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        Card footer
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

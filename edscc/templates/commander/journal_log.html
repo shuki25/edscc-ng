@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load i18n gravatar account humanize static %}
+{% block content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-9">
+                    <div class="card card-orange card-outline card-outline-tabs border-top-0" style="height: auto;">
+                        <div class="card-header p-0 border-bottom-0">
+                            <ul class="nav nav-tabs" id="player-journal" role="tablist">
+                                <li class="pt-2 px-3">
+                                    <h4 class="card-title pr-3"><i
+                                            class="fas fa-clipboard-list text-lg pr-2"></i> {% trans "Player's Journal" %}
+                                    </h4>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="upload-tab" data-toggle="pill"
+                                       href="#upload" role="tab" aria-controls="upload"
+                                       aria-selected="true">{% trans 'Upload Journal Logs' %}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="edmc-plugin-tab" data-toggle="pill"
+                                       href="#edmc-plugin" role="tab"
+                                       aria-controls="edmc-plugin" aria-selected="false">{% trans 'EDMC Plug-in' %}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="console-tab" data-toggle="pill"
+                                       href="#console" role="tab"
+                                       aria-controls="console" aria-selected="false">{% trans 'PS/X-Box' %}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="import-history-tab" data-toggle="pill"
+                                       href="#import-history" role="tab"
+                                       aria-controls="import-history"
+                                       aria-selected="false">{% trans 'Import History' %}</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content" id="player-journal-tabContent">
+                                <div class="tab-pane fade show active" id="upload" role="tabpanel"
+                                     aria-labelledby="upload-tab">
+                                    <div class="card card-orange card-outline shadow">
+                                        <h5 class="card-header text-orange">
+                                            <i class="fa fa-cloud-upload-alt pr-2"></i> {% trans "Upload Player's Journal Log Files" %}
+                                        </h5>
+                                        <div class="card-body card-text">
+                                            <p>To elevate your experience and squadron's experience with the ED: SCC Web
+                                                application, it utilizes data from the player journal log files, which
+                                                contains relevant lines that record specific actions during your
+                                                gameplay. This app does not collect every event in the game; it only
+                                                records events pertinent to the app's dashboard and other measurements.
+                                                The app will capture data from your start date since joining this
+                                                squadron, and it will not process any events before that date. We only
+                                                focus on your activities while you are an active squadron member. When
+                                                it detects that you have left the squadron, the data collection will
+                                                stop at that point.</p>
+                                            <p>The usual location for these files can be found in this
+                                                folder:</p>
+                                            <p>C:\Users\%userprofile%\Saved Games\Frontier
+                                                Developments\Elite Dangerous</p>
+                                            <p>Upload the files with the filenames in a format like
+                                                this:
+                                                Journal.190209154325.01.log. Note that all log files end with .log. All
+                                                other files like Status.json, Journal315129.cache or the similar will
+                                                not be accepted.</p>
+
+                                            <p>It accepts a zip file of all log files combined in a single upload. The
+                                                parser will process each file and capture relevant data, and store it in
+                                                the database. The maximum upload file size is 20M.</p>
+                                        </div>
+                                        <div class="well text-muted text-center mr-3 ml-3 mb-3 bg-gray-dark"
+                                             style="padding-top: 1rem; padding-bottom: 1rem; border: 2px solid;">
+                                            <span class="fas fa-arrow-down pb-3"
+                                                  style="font-size: 2rem;"></span>
+                                            <h4>{% trans 'Drop Player Journal Log Files Here to Upload' %}</h4>
+                                            {% csrf_token %}
+                                            <input id="fileupload" type="file" name="file" multiple style="display: none;" data-url="{% url 'game_journal_upload' %}" data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+                                            <button type="button" class="btn btn-success js-upload-files mt-3 mr-2">
+                                                <span class="fas fa-plus pr-2"></span> {% trans 'Add Journal Files' %}
+                                            </button>
+{#                                            <button type="button" class="btn btn-primary mt-3 mr-2">#}
+{#                                                <span class="fas fa-cloud-upload-alt pr-2"></span> {% trans 'Upload' %}#}
+{#                                            </button>#}
+{#                                            <button type="button" class="btn btn-warning mt-3">#}
+{#                                                <span class="fas fa-ban pr-2"></span> {% trans 'Cancel' %}#}
+{#                                            </button>#}
+                                        </div>
+                                        <div class="container-fluid">
+                                            <table id="gallery" class="table table-hover table-sm table-striped text-nowrap">
+                                                <thead>
+                                                <tr>
+                                                    <th>{% trans 'Journal Log Files Uploaded' %}</th>
+                                                    <th>{% trans 'File Type' %}</th>
+                                                    <th>{% trans 'Size' %}</th>
+                                                    <th>{% trans 'Status' %}</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr>
+                                                    <td colspan="4" class="text-center">{% trans 'No files are uploaded yet' %}</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="modal fade" id="modal-progress" data-backdrop="static" data-keyboard="false">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title">{% trans 'Uploading Journal Files' %}...</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="progress">
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated progress-bar-warning" role="progressbar" style="width: 0%;">
+                                                            0%
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="edmc-plugin" role="tabpanel"
+                                     aria-labelledby="edmc-plugin-tab">
+                                    Reputation: Mauris tincidunt mi at erat gravida, eget tristique urna bibendum.
+                                    Mauris pharetra
+                                    purus ut ligula tempor, et vulputate metus facilisis. Lorem ipsum dolor sit amet,
+                                    consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et
+                                    ultrices posuere cubilia Curae; Maecenas sollicitudin, nisi a luctus interdum, nisl
+                                    ligula placerat mi, quis posuere purus ligula eu lectus. Donec nunc tellus,
+                                    elementum sit amet ultricies at, posuere nec nunc. Nunc euismod pellentesque diam.
+                                </div>
+                                <div class="tab-pane fade" id="console" role="tabpanel" aria-labelledby="console-tab">
+                                    <div class="card" style="height: 610px; overflow-y: auto;">
+                                        {% include 'commander/statistics.html' %}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="import-history" role="tabpanel"
+                                     aria-labelledby="import-history-tab">
+                                    Powerplay: Pellentesque vestibulum commodo nibh nec blandit. Maecenas neque magna,
+                                    iaculis
+                                    tempus turpis ac, ornare sodales tellus. Mauris eget blandit dolor. Quisque
+                                    tincidunt venenatis vulputate. Morbi euismod molestie tristique. Vestibulum
+                                    consectetur dolor a vestibulum pharetra. Donec interdum placerat urna nec pharetra.
+                                    Etiam eget dapibus orci, eget aliquet urna. Nunc at consequat diam. Nunc et felis ut
+                                    nisl commodo dignissim. In hac habitasse platea dictumst. Praesent imperdiet
+                                    accumsan ex sit amet facilisis.
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-orange card-outline">
+                        <h5 class="card-header">
+                            {% trans 'Recent Log Activities' %}
+                        </h5>
+                        <div class="card-body">
+                            <p class="card-text">
+                                Card content
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            Card footer
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    {{ block.super }}
+    {# JQUERY FILE UPLOAD SCRIPTS #}
+    <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
+    <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
+    <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
+    <script src="{% static 'js/journal_upload.js' %}"></script>
+{% endblock %}

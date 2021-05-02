@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load markdownify %}
+{% block content %}
+    <div class="container-fluid">
+        {% if carousel %}
+            <div class="row">
+                <div class="col-md-12">
+                    {% include 'core/galnet-carousel.html' %}
+                </div>
+            </div>
+        {% endif %}
+        <div class="mt-3"></div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    {% for item in galnet_news %}
+                    {% if forloop.counter0 == 3 %}
+                </div>
+                <div class="col-md-6">
+                    {% endif %}
+                    <div class="card card-outline card-orange shadow">
+                        <h5 class="card-header text-orange">
+                            {{ item.title }}<br><span class="text-sm">{{ item.ed_date }}</span>
+                        </h5>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {{ item.body|markdownify|truncatewords:65 }}
+                            </p>
+                            <span><a href="{% url 'galnet-detail' item.slug %}">{% trans 'Read More' %}</a></span>
+                        </div>
+                        <div class="card-footer text-sm text-orange text-right">
+                            {{ item.ed_date }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
