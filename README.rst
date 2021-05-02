@@ -9,7 +9,8 @@ A port project from PHP to Python of the original EDSCC project
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
      :target: https://github.com/ambv/black
      :alt: Black code style
-.. image:: https://img.shields.io/pypi/pyversions/django   :alt: PyPI - Python Version
+.. image:: https://img.shields.io/pypi/pyversions/Django   :alt: PyPI - Python Version
+.. image:: https://img.shields.io/pypi/djversions/djangorestframework   :alt: PyPI - Django Version
 
 :License: GPLv3
 
