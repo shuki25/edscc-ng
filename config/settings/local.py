@@ -1,3 +1,4 @@
+import edscc.middleware.debug_toolbar
 from .base import *  # noqa
 from .base import env
 
@@ -45,10 +46,11 @@ MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]  # noqa F405
 # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#debug-toolbar-config
 DEBUG_TOOLBAR_CONFIG = {
     "DISABLE_PANELS": ["debug_toolbar.panels.redirects.RedirectsPanel"],
+    "SHOW_TOOLBAR_CALLBACK": "edscc.middleware.debug_toolbar.show_toolbar",
     "SHOW_TEMPLATE_CONTEXT": True,
 }
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#internal-ips
-INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
+INTERNAL_IPS = ["127.0.0.1", "10.0.2.2", "192.168.2.118"]
 
 
 # django-extensions
