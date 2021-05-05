@@ -2,11 +2,12 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
 
-from edscc.core.models import Carousel, CommunityGoal, GalnetNews
+from .models import Carousel, CommunityGoal, GalnetNews
+from .utils import update_galnet_news
 
 log = logging.getLogger(__name__)
 
@@ -65,3 +66,8 @@ def galnet_news_detail(request, slug):
     }
 
     return render(request, "core/galnet-detail.html", context=data)
+
+
+def sync_galnet_news(request):
+    update_galnet_news(request)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

@@ -13,6 +13,7 @@ from edscc.core.views import (
     login_required_alert,
     placeholder,
     privacy_policy,
+    sync_galnet_news,
 )
 
 urlpatterns = [
@@ -20,6 +21,7 @@ urlpatterns = [
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),
     # Django Admin, use {% url 'admin:index' %}
+    path('admin/sync/galnet_news/', sync_galnet_news, name="sync-galnet-news"),
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
     path("accounts/", include("allauth.urls")),

@@ -6,6 +6,7 @@ import os.path
 import filetype
 import requests
 from django.conf import settings
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 from markdownify import markdownify as md
@@ -37,8 +38,9 @@ def fetch_galnet_news_feed():
     return data, status
 
 
-def update_galnet_news():
+def update_galnet_news(request):
     (data, status) = fetch_galnet_news_feed()
+    new_article_counter = 0
     for article in data:
         try:
             GalnetNews.objects.get(nid=article["nid"])
@@ -52,8 +54,13 @@ def update_galnet_news():
                 slug=article["slug"],
             )
             a.save()
+            new_article_counter += 1
         except Exception as e:
             log.debug(e)
+    if new_article_counter > 1:
+        messages.info(request, _("Sync completed: %d new articles added" % new_article_counter))
+    elif new_article_counter:
+        messages.info(request, _("Sync completed: One new article added"))
 
 
 def evaluate_journal_log(user_id, file_path):  # noqa C901
