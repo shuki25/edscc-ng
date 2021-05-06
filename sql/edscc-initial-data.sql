@@ -77147,8 +77147,6 @@ VALUES
 /*!40000 ALTER TABLE `rank` ENABLE KEYS */;
 UNLOCK TABLES;
 
-
-
 # Dump of table status
 # ------------------------------------------------------------
 
@@ -77167,7 +77165,109 @@ VALUES
 /*!40000 ALTER TABLE `status` ENABLE KEYS */;
 UNLOCK TABLES;
 
+# Dump of table faction
+# ------------------------------------------------------------
 
+LOCK TABLES `faction` WRITE;
+/*!40000 ALTER TABLE `faction` DISABLE KEYS */;
+
+INSERT INTO `faction` (`id`, `name`, `logo`, `journal_id`)
+VALUES
+	(1,'Independent','independent-power.png',NULL),
+	(2,'Alliance','Alliance.png',NULL),
+	(3,'Empire','Empire.png',NULL),
+	(4,'Federation','Federation.png',NULL);
+
+/*!40000 ALTER TABLE `faction` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table power
+# ------------------------------------------------------------
+
+LOCK TABLES `power` WRITE;
+/*!40000 ALTER TABLE `power` DISABLE KEYS */;
+
+INSERT INTO `power` (`id`, `name`, `logo`, `journal_id`, `color_power`)
+VALUES
+	(1,'Aisling Duval','aisling-duval.png',NULL,NULL),
+	(2,'Archon Delaine','archon-delaine.png',NULL,NULL),
+	(3,'Arissa Lavigny Duval','arissa-lavigny-duval.png',NULL,NULL),
+	(4,'Denton Patreus','denton-patreus.png',NULL,NULL),
+	(5,'Edmund Mahon','edmund-mahon.png',NULL,NULL),
+	(6,'Felicia Winters','felicia-winters.png',NULL,NULL),
+	(7,'Li Yong-Rui','li-yong-rui.png',NULL,NULL),
+	(8,'Pranav Antal','pranav-antal.png',NULL,NULL),
+	(9,'Zachary Hudson','zachary-hudson.png',NULL,NULL),
+	(10,'Zemina Torval','zemina-torval.png',NULL,NULL),
+	(11,'Yuri Grom','yuri-grom.png',NULL,NULL);
+
+/*!40000 ALTER TABLE `power` ENABLE KEYS */;
+UNLOCK TABLES;
+
+# Dump of table tags
+# ------------------------------------------------------------
+
+LOCK TABLES `tags` WRITE;
+/*!40000 ALTER TABLE `tags` DISABLE KEYS */;
+
+INSERT INTO `tags` (`id`, `group_code`, `name`, `badge_color`)
+VALUES
+	(1,'activities','Anti-Xeno Activists','bg-blue'),
+	(2,'activities','Bounty Hunters','bg-blue'),
+	(3,'activities','Explorers','bg-blue'),
+	(4,'activities','Faction Supporters','bg-blue'),
+	(5,'activities','Humanitarian Aid Providers','bg-blue'),
+	(6,'activities','Pirates','bg-blue'),
+	(7,'activities','Power Supporters','bg-blue'),
+	(8,'activities','Traders','bg-blue'),
+	(9,'activities','Miners','bg-blue'),
+	(10,'activities','Fuel Rats','bg-blue'),
+	(11,'activities','Seals','bg-blue'),
+	(12,'availability','Occasional','bg-orange'),
+	(13,'availability','Weekdays','bg-orange'),
+	(14,'availability','Weekends','bg-orange'),
+	(15,'availability','Weeknights','bg-orange'),
+	(16,'game_mode','Relaxed','bg-green'),
+	(17,'game_mode','Family','bg-green'),
+	(18,'game_mode','Devoted','bg-green'),
+	(19,'play_style','PvE','bg-olive'),
+	(20,'play_style','PvP','bg-olive'),
+	(21,'play_style','Roleplay','bg-olive'),
+	(22,'language','English','bg-navy'),
+	(23,'language','Portuguese','bg-navy'),
+	(24,'language','German','bg-navy'),
+	(25,'language','French','bg-navy'),
+	(26,'language','Spanish','bg-navy'),
+	(27,'language','Russian','bg-navy'),
+	(28,'attitude','Solo','bg-default'),
+	(29,'attitude','Open','bg-default'),
+	(30,'attitude','Private Group','bg-default'),
+	(31,'activities','FA off','bg-blue'),
+	(32,'platform','PC','bg-purple'),
+	(33,'platform','XBox','bg-purple'),
+	(34,'platform','PS4','bg-purple');
+
+/*!40000 ALTER TABLE `tags` ENABLE KEYS */;
+UNLOCK TABLES;
+
+# Dump of table thargoid_variant
+# ------------------------------------------------------------
+
+LOCK TABLES `thargoid_variant` WRITE;
+/*!40000 ALTER TABLE `thargoid_variant` DISABLE KEYS */;
+
+INSERT INTO `thargoid_variant` (`id`, `name`, `reward`)
+VALUES
+	(1,'Scout',10000),
+	(2,'Cyclop',2000000),
+	(3,'Baslisk',6000000),
+	(4,'Medusa',10000000),
+	(5,'Hydra',15000000),
+	(6,'Orthrus',0);
+
+/*!40000 ALTER TABLE `thargoid_variant` ENABLE KEYS */;
+UNLOCK TABLES;
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
