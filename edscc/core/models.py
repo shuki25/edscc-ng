@@ -1,4 +1,5 @@
 import logging
+import random
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -221,11 +222,12 @@ class GalnetNews(models.Model):
     date_added = models.DateTimeField(auto_now=True)
 
     def first_image(self):
-        chunks = self.image.split(",")
-        if chunks[0]:
-            return chunks[0]
-        else:
-            return chunks[1]
+        if self.image:
+            chunks = self.image.split(",")
+            if len(chunks) > 1:
+                return random.choice(chunks)
+            else:
+                return chunks[0]
 
     class Meta:
         managed = True
