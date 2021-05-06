@@ -61,6 +61,8 @@ def update_galnet_news(request):
         messages.info(request, _("Sync completed: %d new articles added" % new_article_counter))
     elif new_article_counter:
         messages.info(request, _("Sync completed: One new article added"))
+    else:
+        messages.info(request, _("Sync completed: No new articles added"))
 
 
 def evaluate_journal_log(user_id, file_path):  # noqa C901
