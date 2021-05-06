@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
-from edscc.squadron.models import CustomRank, MinorFaction, Rank, Squadron
+from ..squadron.models import CustomRank, MinorFaction, Rank, Squadron
 
 
 # Create your models here.make
@@ -55,42 +55,15 @@ class Commander(models.Model):
     asset = models.BigIntegerField(blank=True, null=True)
     credits = models.BigIntegerField(blank=True, null=True)
     loan = models.IntegerField(blank=True, null=True)
-    combat = models.ForeignKey(
-        "squadron.Rank", models.CASCADE, related_name="combat", default=6, null=False
-    )
-    trade = models.ForeignKey(
-        "squadron.Rank", models.CASCADE, related_name="trade", default=15, null=False
-    )
-    explore = models.ForeignKey(
-        "squadron.Rank", models.CASCADE, related_name="explore", default=24, null=False
-    )
-    mercenary = models.ForeignKey(
-        "squadron.Rank",
-        models.CASCADE,
-        related_name="mercenary",
-        default=72,
-        null=False,
-    )
-    exobiologist = models.ForeignKey(
-        "squadron.Rank",
-        models.CASCADE,
-        related_name="exobiologist",
-        default=81,
-        null=False,
-    )
-    federation = models.ForeignKey(
-        "squadron.Rank",
-        models.CASCADE,
-        related_name="federation",
-        default=33,
-        null=False,
-    )
-    empire = models.ForeignKey(
-        "squadron.Rank", models.CASCADE, related_name="empire", default=48, null=False
-    )
-    cqc = models.ForeignKey(
-        "squadron.Rank", models.CASCADE, related_name="cqc", default=63, null=False
-    )
+    combat = models.ForeignKey("squadron.Rank", models.CASCADE, related_name="combat", default=6, null=False)
+    trade = models.ForeignKey("squadron.Rank", models.CASCADE, related_name="trade", default=15, null=False)
+    explore = models.ForeignKey("squadron.Rank", models.CASCADE, related_name="explore", default=24, null=False)
+    mercenary = models.ForeignKey("squadron.Rank", models.CASCADE, related_name="mercenary", default=72, null=False)
+    exobiologist = models.ForeignKey("squadron.Rank", models.CASCADE, related_name="exobiologist", default=81,
+                                     null=False)
+    federation = models.ForeignKey("squadron.Rank", models.CASCADE, related_name="federation", default=33, null=False)
+    empire = models.ForeignKey("squadron.Rank", models.CASCADE, related_name="empire", default=48, null=False)
+    cqc = models.ForeignKey("squadron.Rank", models.CASCADE, related_name="cqc", default=63, null=False)
     combat_progress = models.IntegerField(default=0, null=False)
     trade_progress = models.IntegerField(default=0, null=False)
     explore_progress = models.IntegerField(default=0, null=False)
@@ -113,56 +86,13 @@ class Commander(models.Model):
 
     def get_skill_web(self):
         skill_web = {
-            "combat": int(
-                (
-                    self._calculate_points(
-                        self.combat.assigned_id, self.combat_progress
-                    )
-                    / 800
-                )
-                * 100
-            ),
-            "trader": int(
-                (
-                    self._calculate_points(self.trade.assigned_id, self.combat_progress)
-                    / 800
-                )
-                * 100
-            ),
-            "explorer": int(
-                (
-                    self._calculate_points(
-                        self.explore.assigned_id, self.combat_progress
-                    )
-                    / 800
-                )
-                * 100
-            ),
-            "cqc": int(
-                (
-                    self._calculate_points(self.cqc.assigned_id, self.combat_progress)
-                    / 800
-                )
-                * 100
-            ),
-            "mercenary": int(
-                (
-                    self._calculate_points(
-                        self.mercenary.assigned_id, self.combat_progress
-                    )
-                    / 800
-                )
-                * 100
-            ),
+            "combat": int((self._calculate_points(self.combat.assigned_id, self.combat_progress) / 800) * 100),
+            "trader": int((self._calculate_points(self.trade.assigned_id, self.combat_progress) / 800) * 100),
+            "explorer": int((self._calculate_points(self.explore.assigned_id, self.combat_progress) / 800) * 100),
+            "cqc": int((self._calculate_points(self.cqc.assigned_id, self.combat_progress) / 800) * 100),
+            "mercenary": int((self._calculate_points(self.mercenary.assigned_id, self.combat_progress) / 800) * 100),
             "exobiologist": int(
-                (
-                    self._calculate_points(
-                        self.exobiologist.assigned_id, self.combat_progress
-                    )
-                    / 800
-                )
-                * 100
-            ),
+                (self._calculate_points(self.exobiologist.assigned_id, self.combat_progress) / 800) * 100),
         }
         return skill_web
 
@@ -180,9 +110,7 @@ class Crime(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
     squadron = models.ForeignKey("squadron.Squadron", models.CASCADE)
     crime_type = models.ForeignKey("CrimeType", models.CASCADE)
-    minor_faction = models.ForeignKey(
-        "squadron.MinorFaction", models.CASCADE, blank=True, null=True
-    )
+    minor_faction = models.ForeignKey("squadron.MinorFaction", models.CASCADE, blank=True, null=True)
     victim = models.CharField(max_length=255, blank=True, null=True)
     fine = models.IntegerField(blank=True, null=True)
     bounty = models.IntegerField(blank=True, null=True)
@@ -198,20 +126,10 @@ class FactionActivity(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
     squadron = models.ForeignKey("squadron.Squadron", models.CASCADE)
     earning_type = models.ForeignKey("core.EarningType", models.CASCADE)
-    minor_faction = models.ForeignKey(
-        "squadron.MinorFaction",
-        models.CASCADE,
-        related_name="minor_faction",
-        blank=True,
-        null=True,
-    )
-    target_minor_faction = models.ForeignKey(
-        "squadron.MinorFaction",
-        models.CASCADE,
-        related_name="target_minor_faction",
-        blank=True,
-        null=True,
-    )
+    minor_faction = models.ForeignKey("squadron.MinorFaction", models.CASCADE, related_name="minor_faction", blank=True,
+                                      null=True)
+    target_minor_faction = models.ForeignKey("squadron.MinorFaction", models.CASCADE,
+                                             related_name="target_minor_faction", blank=True, null=True)
     earned_on = models.DateField()
     reward = models.IntegerField()
 
@@ -240,9 +158,7 @@ class UserProfile(models.Model):
     commander_name = models.CharField(max_length=255)
     alternate_email = models.CharField(max_length=180, null=True)
     roles = models.TextField(default="[]")
-    squadron = models.ForeignKey(
-        "squadron.Squadron", models.CASCADE, blank=True, null=True
-    )
+    squadron = models.ForeignKey("squadron.Squadron", models.CASCADE, blank=True, null=True)
     squadron_name = models.CharField(max_length=255, blank=True, null=True)
     rank = models.ForeignKey(Rank, models.CASCADE, blank=True, null=True)
     custom_rank = models.ForeignKey(CustomRank, models.CASCADE, blank=True, null=True)
@@ -289,3 +205,18 @@ class JournalLog(models.Model):
     class Meta:
         managed = True
         db_table = "journal_log"
+
+
+class EarningHistory(models.Model):
+    user = models.ForeignKey(User, models.CASCADE)
+    squadron = models.ForeignKey(Squadron, models.CASCADE)
+    earning_type = models.ForeignKey('core.EarningType', models.CASCADE)
+    earned_on = models.DateField()
+    reward = models.IntegerField()
+    crew_wage = models.IntegerField()
+    minor_faction = models.ForeignKey(MinorFaction, models.CASCADE, blank=True, null=True)
+    notes = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'earning_history'
