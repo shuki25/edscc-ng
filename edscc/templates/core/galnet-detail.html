@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %}
-{% load humanize %}
-{% load markdownify %}
+{% load i18n static humanize markdownify %}
 {% block content %}
     <div class="container-fluid">
         {% if carousel %}
@@ -20,7 +18,12 @@
                             {{ article.title }}<br><span class="text-sm">{{ article.ed_date }}</span>
                         </h5>
                         <div class="card-body">
-                            <img class="d-block w-100" src="{{ galnet_img_url }}{{ article.first_image }}.png" style="height: 400px; object-fit: cover"/>
+                            {% if item.first_image %}
+                                <img class="d-block w-100" src="
+                                        {{ galnet_img_url }}{{ item.first_image|default:'' }}.png" style="height: 400px; object-fit: cover"/>
+                            {% else %}
+                                <img class="d-block w-100" src="{% static 'img/galnet-news-placeholder.jpg' %}" style="height: 400px; object-fit: cover"/>
+                            {% endif %}
                             <p class="card-text">
                                 {{ article.body|markdownify }}
                             </p>

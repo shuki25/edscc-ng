@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load static %}
 <div class="carousel slide" id="carousel-homepage">
     <ol class="carousel-indicators">
         {% for item in carousel %}
@@ -9,7 +10,11 @@
     <div class="carousel-inner">
         {% for item in carousel %}
             <div class="carousel-item{% if forloop.counter0 == 0 %} active{% endif %}">
-                <img class="d-block w-100" src="{{ galnet_img_url }}{{ item.first_image }}.png" style="height: 400px; object-fit: cover"/>
+                {% if item.first_image %}
+                    <img class="d-block w-100" src="{{ galnet_img_url }}{{ item.first_image|default:'' }}.png" style="height: 400px; object-fit: cover"/>
+                {% else %}
+                    <img class="d-block w-100" src="{% static 'img/galnet-news-placeholder.jpg' %}" style="height: 400px; object-fit: cover"/>
+                {% endif %}
                 <div class="carousel-caption">
                     <h4>
                         {{ item.title }}
