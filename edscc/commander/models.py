@@ -29,24 +29,30 @@ class Status(models.Model):
 
 class ActivityCounter(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
-    squadron = models.ForeignKey("squadron.Squadron", models.CASCADE)
+    squadron = models.ForeignKey("squadron.Squadron", models.CASCADE, null=True)
     activity_date = models.DateField()
-    bounties_claimed = models.IntegerField()
-    systems_scanned = models.IntegerField()
-    bodies_found = models.IntegerField()
-    saa_scan_completed = models.IntegerField()
-    efficiency_achieved = models.IntegerField()
-    market_buy = models.IntegerField()
-    market_sell = models.IntegerField()
-    missions_completed = models.IntegerField()
-    mining_refined = models.IntegerField()
-    stolen_goods = models.IntegerField()
-    cg_participated = models.IntegerField()
-    crimes_committed = models.IntegerField()
+    bounties_claimed = models.IntegerField(default=0)
+    systems_scanned = models.IntegerField(default=0)
+    bodies_found = models.IntegerField(default=0)
+    saa_scan_completed = models.IntegerField(default=0)
+    efficiency_achieved = models.IntegerField(default=0)
+    market_buy = models.IntegerField(default=0)
+    market_sell = models.IntegerField(default=0)
+    missions_completed = models.IntegerField(default=0)
+    mining_refined = models.IntegerField(default=0)
+    stolen_goods = models.IntegerField(default=0)
+    cg_participated = models.IntegerField(default=0)
+    crimes_committed = models.IntegerField(default=0)
 
     class Meta:
         managed = True
         db_table = "activity_counter"
+
+    def add_by_attr(self, attr_name, count):
+        current_value = getattr(self, attr_name)
+        current_value += count
+        setattr(self, attr_name, current_value)
+
 
 
 class Commander(models.Model):
@@ -124,7 +130,7 @@ class Crime(models.Model):
 
 class FactionActivity(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
-    squadron = models.ForeignKey("squadron.Squadron", models.CASCADE)
+    squadron = models.ForeignKey("squadron.Squadron", models.CASCADE, null=True)
     earning_type = models.ForeignKey("core.EarningType", models.CASCADE)
     minor_faction = models.ForeignKey("squadron.MinorFaction", models.CASCADE, related_name="minor_faction", blank=True,
                                       null=True)

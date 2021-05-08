@@ -86,9 +86,9 @@ class CustomRank(models.Model):
 
 
 class MinorFaction(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, db_index=True)
     player_faction = models.BooleanField(default=False)
-    eddb_id = models.IntegerField(blank=True, null=True)
+    eddb_id = models.IntegerField(blank=True, null=True, db_index=True)
 
     class Meta:
         managed = True
