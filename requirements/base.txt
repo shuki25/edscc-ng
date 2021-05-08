@@ -15,7 +15,7 @@ jsonlines==2.0.0
 
 # Django
 # ------------------------------------------------------------------------------
-django==3.2.1  # pyup: < 3.2  # https://www.djangoproject.com/
+django==3.2.2  # pyup: < 3.2  # https://www.djangoproject.com/
 django-environ==0.4.5  # https://github.com/joke2k/django-environ
 django-model-utils==4.1.1  # https://github.com/jazzband/django-model-utils
 django-allauth==0.44.0  # https://github.com/pennersr/django-allauth
