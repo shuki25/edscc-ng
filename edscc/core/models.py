@@ -233,3 +233,27 @@ class GalnetNews(models.Model):
         managed = True
         db_table = "galnet_news"
         verbose_name_plural = "Galnet news"
+
+
+class SessionTracker(models.Model):
+    hash_key = models.CharField(max_length=32, db_index=True)
+    payload = models.JSONField(max_length=4096)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        managed = True
+        db_table = "session_tracker"
+
+
+class ParserLog(models.Model):
+    event = models.CharField(max_length=30, db_index=True)
+    counter = models.IntegerField()
+    user = models.ForeignKey(User, models.CASCADE)
+
+    def increment(self):
+        self.counter += 1
+
+    class Meta:
+        managed = True
+        db_table = "parser_log"

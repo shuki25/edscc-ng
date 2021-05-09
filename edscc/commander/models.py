@@ -54,7 +54,6 @@ class ActivityCounter(models.Model):
         setattr(self, attr_name, current_value)
 
 
-
 class Commander(models.Model):
     player_id = models.CharField(max_length=20, blank=True, null=True)
     user = models.OneToOneField(User, models.CASCADE, blank=True, null=True)
@@ -204,6 +203,8 @@ class JournalLog(models.Model):
     game_start = models.DateTimeField(blank=True, null=True, db_index=True)
     game_end = models.DateTimeField(blank=True, null=True, db_index=True)
     time_started = models.DateTimeField(blank=True, null=True)
+    parser_time = models.FloatField(null=True)
+    rows_processed = models.IntegerField(null=True)
     progress_code = models.CharField(max_length=1, default='Q')
     progress_percent = models.FloatField(blank=True, null=True)
     error_count = models.IntegerField(default=0)
@@ -215,7 +216,7 @@ class JournalLog(models.Model):
 
 class EarningHistory(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
-    squadron = models.ForeignKey(Squadron, models.CASCADE)
+    squadron = models.ForeignKey(Squadron, models.CASCADE, null=True)
     earning_type = models.ForeignKey('core.EarningType', models.CASCADE)
     earned_on = models.DateField()
     reward = models.IntegerField()
