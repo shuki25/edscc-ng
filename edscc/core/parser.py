@@ -43,27 +43,26 @@ class FileNotFound(Exception):
 
 
 class ParseJournalLog:
-
-    def __init__(self, user, session_type='journal'):
+    def __init__(self, user, session_type="journal"):
         self.file_path = ""
         self.event_callable = {
-            'Fileheader': self.file_header,
-            'LoadGame': self.load_game,
-            'Bounty': self.bounty,
-            'Cargo': self.commander_info,
-            'CarrierStats': self.commander_info,
-            'Docked': self.docked,
-            'EngineerProgress': self.commander_info,
-            'Materials': self.commander_info,
-            'MultiSellExplorationData': self.multisell_exploration_data,
-            'Progress': self.progress,
-            'Rank': self.rank,
-            'RedeemVoucher': self.redeem_voucher,
-            'Reputation': self.commander_info,
-            'SellExplorationData': None,
-            'Shutdown': self.undocked,
-            'Statistics': self.commander_info,
-            'Undocked': self.undocked,
+            "Fileheader": self.file_header,
+            "LoadGame": self.load_game,
+            "Bounty": self.bounty,
+            "Cargo": self.commander_info,
+            "CarrierStats": self.commander_info,
+            "Docked": self.docked,
+            "EngineerProgress": self.commander_info,
+            "Materials": self.commander_info,
+            "MultiSellExplorationData": self.multisell_exploration_data,
+            "Progress": self.progress,
+            "Rank": self.rank,
+            "RedeemVoucher": self.redeem_voucher,
+            "Reputation": self.commander_info,
+            "SellExplorationData": None,
+            "Shutdown": self.undocked,
+            "Statistics": self.commander_info,
+            "Undocked": self.undocked,
         }
 
         self.rank_dict = _rank_xref()
@@ -80,18 +79,21 @@ class ParseJournalLog:
             try:
                 self.user = User.objects.get(id=user)
                 self.user_id = self.user.id
-                self.user_profile = UserProfile.objects.get(user_id=self.user_id)
-                self.squadron_id = self.user_profile.squadron_id
             except User.DoesNotExist:
-                raise DoesNotExist('User or User Profile %s not found' % user)
+                raise DoesNotExist("User or User Profile %s not found" % user)
         else:
-            raise TypeError('Not User instance or user id')
-        self.session = SessionTrackerManager(user=self.user, session_identifier=session_type)
+            raise TypeError("Not User instance or user id")
+
+        self.user_profile = UserProfile.objects.get(user_id=self.user_id)
+        self.squadron_id = self.user_profile.squadron_id
+        self.session = SessionTrackerManager(
+            user=self.user, session_identifier=session_type
+        )
         parser_log = ParserLog.objects.filter(user_id=self.user_id)
         if parser_log:
             for row in parser_log:
                 self.parser_log[row.event] = row.counter
-        log.debug('Tracking session %s' % self.session.hash_key)
+        log.debug("Tracking session %s" % self.session.hash_key)
         log.debug(self.parser_log)
 
     @transaction.atomic
@@ -107,54 +109,57 @@ class ParseJournalLog:
 
     def get_localized_string(self, data, key):
         original_string = data[key] if key in data else ""
-        match = re.match(r'^[\$](.)*', original_string)
+        match = re.match(r"^[\$](.)*", original_string)
         localised_key = "%s_Localised" % key
         if match is not None:
             return data[localised_key] if localised_key in data else original_string
         return original_string
 
     def parse_event(self, event):
-        if event['event'] in self.event_callable:
-            self.event_callable[event['event']](event)
+        if event["event"] in self.event_callable:
+            self.event_callable[event["event"]](event)
         else:
-            if event['event'] in self.parser_log:
-                self.parser_log[event['event']] += 1
+            if event["event"] in self.parser_log:
+                self.parser_log[event["event"]] += 1
             else:
-                self.parser_log[event['event']] = 1
+                self.parser_log[event["event"]] = 1
 
     def file_header(self, data):
-        log.debug('in file_header')
-        self.log_date = parse_datetime(data['timestamp']).strftime('%Y-%m-%d')
+        log.debug("in file_header")
+        self.log_date = parse_datetime(data["timestamp"]).strftime("%Y-%m-%d")
         try:
-            self.activity_counter = ActivityCounter.objects.get(user_id=self.user_id, activity_date=self.log_date)
-            log.debug('activity_counter record loaded')
+            self.activity_counter = ActivityCounter.objects.get(
+                user_id=self.user_id, activity_date=self.log_date
+            )
+            log.debug("activity_counter record loaded")
         except ActivityCounter.DoesNotExist:
-            self.activity_counter = ActivityCounter(user_id=self.user_id, activity_date=self.log_date)
+            self.activity_counter = ActivityCounter(
+                user_id=self.user_id, activity_date=self.log_date
+            )
             self.activity_counter.save()
-            log.debug('activity_counter record created')
+            log.debug("activity_counter record created")
 
     def load_game(self, data):
         try:
             Commander.objects.filter(user_id=self.user_id).update(
-                credits=data['Credits'],
-                loan=data['Loan']
+                credits=data["Credits"], loan=data["Loan"]
             )
         except Commander.DoesNotExist as e:
-            log.debug('No Commander record found: %s' % e)
+            log.debug("No Commander record found: %s" % e)
             return
         except Exception as e:
-            log.debug(('Other error: %s' % e))
+            log.debug(("Other error: %s" % e))
             return
 
     def docked(self, data):
-        self.session.set_attr('station_name', data['StationName'])
-        self.session.set_attr('market_id', data['MarketID'])
-        self.session.set_attr('station_faction', data['StationFaction']['Name'])
+        self.session.set_attr("station_name", data["StationName"])
+        self.session.set_attr("market_id", data["MarketID"])
+        self.session.set_attr("station_faction", data["StationFaction"]["Name"])
 
     def undocked(self, data):
-        self.session.set_attr('station_name', None)
-        self.session.set_attr('market_id', None)
-        self.session.set_attr('station_faction', None)
+        self.session.set_attr("station_name", None)
+        self.session.set_attr("market_id", None)
+        self.session.set_attr("station_faction", None)
 
     def rank(self, data):
         try:
@@ -169,14 +174,16 @@ class ParseJournalLog:
             if "Mercenary" in data:
                 Commander.objects.filter(user_id=self.user_id).update(
                     mercenary_id=self.rank_dict["mercenary"][data["Mercenary"]],
-                    exobiologist_id=self.rank_dict["exobiologist"][data["Exobiologist"]],
+                    exobiologist_id=self.rank_dict["exobiologist"][
+                        data["Exobiologist"]
+                    ],
                 )
             self.commander_info(data)
         except Commander.DoesNotExist as e:
-            log.debug('No Commander record found: %s' % e)
+            log.debug("No Commander record found: %s" % e)
             return
         except Exception as e:
-            log.debug(('Other error: %s' % e))
+            log.debug(("Other error: %s" % e))
             return
 
     def progress(self, data):
@@ -195,68 +202,116 @@ class ParseJournalLog:
                 )
             self.commander_info(data)
         except Commander.DoesNotExist as e:
-            log.debug('No Commander record found: %s' % e)
+            log.debug("No Commander record found: %s" % e)
             return
         except Exception as e:
-            log.debug(('Other error: %s' % e))
+            log.debug(("Other error: %s" % e))
             return
 
     def commander_info(self, data):
         try:
-            cmdr_info = CommanderInfo.objects.get(event=data['event'], user_id=self.user_id)
+            cmdr_info = CommanderInfo.objects.get(
+                event=data["event"], user_id=self.user_id
+            )
             cmdr_info.content = data
             cmdr_info.save()
         except CommanderInfo.DoesNotExist:
-            CommanderInfo(event=data['event'], content=data, user_id=self.user_id).save()
+            CommanderInfo(
+                event=data["event"], content=data, user_id=self.user_id
+            ).save()
 
     @transaction.atomic
     def bounty(self, data):
-        log.debug('in bounty')
-        reward = data['TotalReward'] if 'TotalReward' in data else data['Reward']
-        target_faction = self.get_localized_string(data, 'VictimFaction') if 'VictimFaction' in data else ""
-        self.activity_counter.add_by_attr('bounties_claimed', 1)
-        if 'Rewards' in data:
-            for row in data['Rewards']:
-                minor_faction = self.get_localized_string(row, 'Faction') if 'Faction' in row else ""
-                self.add_minor_faction(data['event'].lower(), parse_datetime(data['timestamp']).strftime('%Y-%m-%d'),
-                                       row['Reward'], minor_faction, target_faction)
+        log.debug("in bounty")
+        reward = data["TotalReward"] if "TotalReward" in data else data["Reward"]
+        target_faction = (
+            self.get_localized_string(data, "VictimFaction")
+            if "VictimFaction" in data
+            else ""
+        )
+        self.activity_counter.add_by_attr("bounties_claimed", 1)
+        if "Rewards" in data:
+            for row in data["Rewards"]:
+                minor_faction = (
+                    self.get_localized_string(row, "Faction")
+                    if "Faction" in row
+                    else ""
+                )
+                self.add_minor_faction(
+                    data["event"].lower(),
+                    parse_datetime(data["timestamp"]).strftime("%Y-%m-%d"),
+                    row["Reward"],
+                    minor_faction,
+                    target_faction,
+                )
         else:
-            log.debug('in reward')
-            minor_faction = self.get_localized_string(data, 'Faction') if 'Faction' in data else ""
-            self.add_minor_faction(data['event'].lower(), parse_datetime(data['timestamp']).strftime('%Y-%m-%d'),
-                                   reward, minor_faction, target_faction)
+            log.debug("in reward")
+            minor_faction = (
+                self.get_localized_string(data, "Faction") if "Faction" in data else ""
+            )
+            self.add_minor_faction(
+                data["event"].lower(),
+                parse_datetime(data["timestamp"]).strftime("%Y-%m-%d"),
+                reward,
+                minor_faction,
+                target_faction,
+            )
 
     @transaction.atomic
     def redeem_voucher(self, data):
-        log.debug('in redeem_voucher')
-        earning_type = data['Type'].lower()
-        if 'Factions' in data:
-            for row in data['Factions']:
-                minor_faction = self.get_localized_string(row, 'Faction') if 'Faction' in row else ""
+        log.debug("in redeem_voucher")
+        earning_type = data["Type"].lower()
+        if "Factions" in data:
+            for row in data["Factions"]:
+                minor_faction = (
+                    self.get_localized_string(row, "Faction")
+                    if "Faction" in row
+                    else ""
+                )
                 minor_faction_obj = self.find_minor_faction(minor_faction)
-                EarningHistory(user_id=self.user_id, earned_on=parse_datetime(data['timestamp']), reward=row['Amount'],
-                               crew_wage=0, earning_type_id=self.earning_type[earning_type],
-                               minor_faction=minor_faction_obj).save()
-        elif 'Faction' in data:
-            minor_faction_obj = self.find_minor_faction(self.get_localized_string(data, 'Faction'))
-            EarningHistory(user_id=self.user_id, earned_on=parse_datetime(data['timestamp']), reward=data['Amount'],
-                           crew_wage=0, earning_type_id=self.earning_type[earning_type],
-                           minor_faction=minor_faction_obj).save()
+                EarningHistory(
+                    user_id=self.user_id,
+                    earned_on=parse_datetime(data["timestamp"]),
+                    reward=row["Amount"],
+                    crew_wage=0,
+                    earning_type_id=self.earning_type[earning_type],
+                    minor_faction=minor_faction_obj,
+                ).save()
+        elif "Faction" in data:
+            minor_faction_obj = self.find_minor_faction(
+                self.get_localized_string(data, "Faction")
+            )
+            EarningHistory(
+                user_id=self.user_id,
+                earned_on=parse_datetime(data["timestamp"]),
+                reward=data["Amount"],
+                crew_wage=0,
+                earning_type_id=self.earning_type[earning_type],
+                minor_faction=minor_faction_obj,
+            ).save()
 
     @transaction.atomic
     def multisell_exploration_data(self, data):
-        num_systems = len(data['Discovered'])
+        num_systems = len(data["Discovered"])
         num_bodies = 0
-        for system in data['Discovered']:
-            num_bodies += system['NumBodies']
-        minor_faction_obj = self.find_minor_faction(self.session.get_attr('station_faction'))
-        station_name = self.session.get_attr('station_name')
-        crew_wage = data['BaseValue'] + data['Bonus'] - data['TotalEarnings']
-        EarningHistory(user_id=self.user_id, earned_on=parse_datetime(data['timestamp']), reward=data['TotalEarnings'],
-                       crew_wage=crew_wage, earning_type_id=self.earning_type['explorationdata'],
-                       minor_faction=minor_faction_obj, notes=station_name).save()
-        self.activity_counter.add_by_attr('bodies_found', num_bodies)
-        self.activity_counter.add_by_attr('systems_scanned', num_systems)
+        for system in data["Discovered"]:
+            num_bodies += system["NumBodies"]
+        minor_faction_obj = self.find_minor_faction(
+            self.session.get_attr("station_faction")
+        )
+        station_name = self.session.get_attr("station_name")
+        crew_wage = data["BaseValue"] + data["Bonus"] - data["TotalEarnings"]
+        EarningHistory(
+            user_id=self.user_id,
+            earned_on=parse_datetime(data["timestamp"]),
+            reward=data["TotalEarnings"],
+            crew_wage=crew_wage,
+            earning_type_id=self.earning_type["explorationdata"],
+            minor_faction=minor_faction_obj,
+            notes=station_name,
+        ).save()
+        self.activity_counter.add_by_attr("bodies_found", num_bodies)
+        self.activity_counter.add_by_attr("systems_scanned", num_systems)
 
     def find_minor_faction(self, minor_faction):
         minor_faction = minor_faction.strip()
@@ -264,18 +319,27 @@ class ParseJournalLog:
             return None
         try:
             minor_faction_obj = MinorFaction.objects.get(name=minor_faction)
-            log.debug('found minor faction: %s' % minor_faction)
+            log.debug("found minor faction: %s" % minor_faction)
         except MinorFaction.DoesNotExist:
-            minor_faction_obj = MinorFaction(name=minor_faction, player_faction=False, eddb_id=None).save()
-            log.debug('created minor faction: %s' % minor_faction)
+            minor_faction_obj = MinorFaction(
+                name=minor_faction, player_faction=False, eddb_id=None
+            ).save()
+            log.debug("created minor faction: %s" % minor_faction)
         return minor_faction_obj
 
-    def add_minor_faction(self, earning_type, earned_on, reward, minor_faction, target_faction):
+    def add_minor_faction(
+        self, earning_type, earned_on, reward, minor_faction, target_faction
+    ):
         minor_faction_obj = self.find_minor_faction(minor_faction)
         target_faction_obj = self.find_minor_faction(target_faction)
-        FactionActivity(minor_faction=minor_faction_obj, target_minor_faction=target_faction_obj,
-                        earning_type_id=self.earning_type[earning_type], earned_on=earned_on,
-                        reward=reward, user_id=self.user_id).save()
+        FactionActivity(
+            minor_faction=minor_faction_obj,
+            target_minor_faction=target_faction_obj,
+            earning_type_id=self.earning_type[earning_type],
+            earned_on=earned_on,
+            reward=reward,
+            user_id=self.user_id,
+        ).save()
 
 
 class ParseJournalLogFile(ParseJournalLog):
@@ -283,14 +347,16 @@ class ParseJournalLogFile(ParseJournalLog):
         super().__init__(user)
 
     def start(self):
-        queue = JournalLog.objects.filter(progress_code='Q', user_id=self.user_id).order_by('game_start')
+        queue = JournalLog.objects.filter(
+            progress_code="Q", user_id=self.user_id
+        ).order_by("game_start")
         for log_obj in queue:
             tic = time.perf_counter()
             file_path = settings.MEDIA_ROOT + "/" + str(log_obj.file)
-            log.debug('Parsing: %s' % file_path)
-            log.debug('Start: %s End: %s' % (log_obj.game_start, log_obj.game_end))
+            log.debug("Parsing: %s" % file_path)
+            log.debug("Start: %s End: %s" % (log_obj.game_start, log_obj.game_end))
             log_obj.time_started = timezone.now()
-            log_obj.progress_code = 'P'
+            log_obj.progress_code = "P"
             log_obj.progress_percent = 0
             log_obj.save()
             try:
@@ -305,11 +371,11 @@ class ParseJournalLogFile(ParseJournalLog):
                 log.debug(self.parser_log)
             except jsonlines.Error as e:
                 log.debug(e)
-                raise FileNotFound('%s' % file_path)
+                raise FileNotFound("%s" % file_path)
             toc = time.perf_counter()
             log_obj.parser_time = "{:0.5f}".format(toc - tic)
             log_obj.rows_processed = i
-            log_obj.progress_code = 'C'
+            log_obj.progress_code = "C"
             log_obj.progress_percent = 100
             log_obj.save()
 
