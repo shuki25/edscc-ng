@@ -7,7 +7,6 @@ import filetype
 import requests
 from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 from markdownify import markdownify as md
 
@@ -22,10 +21,10 @@ def fetch_galnet_news_feed():
     galnet_feed_url = getattr(settings, "GALNET_FEED_URL")
     r = None
     data = {}
-    status = {}
     try:
         r = requests.get(galnet_feed_url, params={"_format": "json"})
         r.raise_for_status()
+        status = {"Status": r.status_code}
         data = r.json()
     except requests.exceptions.Timeout as e:
         status = {"Status": r.status_code, "Error": "%s" % e}
@@ -40,11 +39,14 @@ def fetch_galnet_news_feed():
 
 def update_galnet_news(request):
     (data, status) = fetch_galnet_news_feed()
-    new_article_counter = 0
+    new_counter = 0
+    if status["Status"] != 200:
+        messages.error(request, _("Sync Failed: Unable to sync with Galnet Feed"))
+        return
+    qs = GalnetNews.objects.values_list("nid", flat=True)
+    article_list = [i for i in qs]
     for article in data:
-        try:
-            GalnetNews.objects.get(nid=article["nid"])
-        except ObjectDoesNotExist:
+        if int(article["nid"]) not in article_list:
             a = GalnetNews(
                 title=article["title"],
                 body=md(article["body"]),
@@ -54,12 +56,10 @@ def update_galnet_news(request):
                 slug=article["slug"],
             )
             a.save()
-            new_article_counter += 1
-        except Exception as e:
-            log.debug(e)
-    if new_article_counter > 1:
-        messages.info(request, _("Sync completed: %d new articles added" % new_article_counter))
-    elif new_article_counter:
+            new_counter += 1
+    if new_counter > 1:
+        messages.info(request, _("Sync completed: %d new articles added" % new_counter))
+    elif new_counter:
         messages.info(request, _("Sync completed: One new article added"))
     else:
         messages.info(request, _("Sync completed: No new articles added"))
