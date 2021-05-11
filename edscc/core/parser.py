@@ -53,12 +53,15 @@ class ParseJournalLog:
             "CarrierStats": self.commander_info,
             "Docked": self.docked,
             "EngineerProgress": self.commander_info,
+            "MarketBuy": self.market_buy,
+            "MarketSell": self.market_sell,
             "Materials": self.commander_info,
             "MultiSellExplorationData": self.multisell_exploration_data,
             "Progress": self.progress,
             "Rank": self.rank,
             "RedeemVoucher": self.redeem_voucher,
             "Reputation": self.commander_info,
+            "SAAScanComplete": self.saa_scan_complete,
             "SellExplorationData": None,
             "Shutdown": self.undocked,
             "Statistics": self.commander_info,
@@ -312,6 +315,54 @@ class ParseJournalLog:
         ).save()
         self.activity_counter.add_by_attr("bodies_found", num_bodies)
         self.activity_counter.add_by_attr("systems_scanned", num_systems)
+
+    @transaction.atomic
+    def saa_scan_complete(self, data):
+        efficiency = 1 if data["ProbesUsed"] <= data["EfficiencyTarget"] else 0
+        self.activity_counter.add_by_attr("saa_scan_completed", 1)
+        self.activity_counter.add_by_attr("efficiency_achieved", efficiency)
+
+    @transaction.atomic
+    def market_buy(self, data):
+        station_name = self.session.get_attr("station_name")
+        minor_faction_obj = self.find_minor_faction(
+            self.session.get_attr("station_faction")
+        )
+        EarningHistory(
+            user_id=self.user_id,
+            earned_on=parse_datetime(data["timestamp"]),
+            reward=int(data["TotalCost"]) * -1,
+            crew_wage=0,
+            earning_type_id=self.earning_type[data["event"].lower()],
+            minor_faction=minor_faction_obj,
+            notes=station_name,
+        ).save()
+        self.activity_counter.add_by_attr("market_buy", data["Count"])
+
+    @transaction.atomic
+    def market_sell(self, data):
+        log.debug("in market_sell")
+        station_name = self.session.get_attr("station_name")
+        minor_faction_obj = self.find_minor_faction(
+            self.session.get_attr("station_faction")
+        )
+        crew_wage = data["TotalSale"] - (data["Count"] * data["SellPrice"])
+        EarningHistory(
+            user_id=self.user_id,
+            earned_on=parse_datetime(data["timestamp"]),
+            reward=data["TotalSale"],
+            crew_wage=crew_wage,
+            earning_type_id=self.earning_type[data["event"].lower()],
+            minor_faction=minor_faction_obj,
+            notes=station_name,
+        ).save()
+        self.activity_counter.add_by_attr("market_sell", data["Count"])
+        if "IllegalGoods" in data:
+            self.activity_counter.add_by_attr("illegal_goods", data["Count"])
+        if "StolenGoods" in data:
+            self.activity_counter.add_by_attr("stolen_goods", data["Count"])
+        if "BlackMarket" in data:
+            self.activity_counter.add_by_attr("black_market", data["Count"])
 
     def find_minor_faction(self, minor_faction):
         minor_faction = minor_faction.strip()
