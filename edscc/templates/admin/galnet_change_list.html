@@ -3,5 +3,18 @@
 
 {% block object-tools-items %}
     {{ block.super }}
-    <a href="{% url 'sync-galnet-news' %}" class="btn btn-outline-success float-right mr-3"><i class="fas fa-sync-alt"></i> Sync Galnet Feed</a>
+    <a id="sync_button" href="{% url 'sync-galnet-news' %}" class="btn btn-outline-success float-right mr-3"><i id="sync_icon" class="fas fa-sync-alt"></i>
+        Sync Galnet Feed</a>
+    <script>
+
+            django.jQuery('#sync_button').click(function (e) {
+                console.log("clicked on the button");
+                django.jQuery('#sync_icon').addClass('fa-spin');
+            });
+
+    </script>
+{% endblock %}
+{% block extrahead %}
+    {{ block.super }}
+
 {% endblock %}
