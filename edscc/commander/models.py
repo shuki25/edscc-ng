@@ -213,6 +213,7 @@ class UserProfile(models.Model):
     commander_name = models.CharField(max_length=255)
     alternate_email = models.CharField(max_length=180, null=True)
     roles = models.TextField(default="[]")
+    has_fleetcarrier = models.BooleanField(default=False)
     squadron = models.ForeignKey(
         "squadron.Squadron", models.CASCADE, blank=True, null=True
     )

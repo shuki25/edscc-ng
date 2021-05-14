@@ -1,12 +1,17 @@
+import ast
+import datetime
 import logging
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
-from .models import Carousel, CommunityGoal, GalnetNews
+from .capi import Capi
+from .models import CapiLog, Carousel, CommunityGoal, GalnetNews
 from .utils import update_galnet_news
 
 log = logging.getLogger(__name__)
@@ -70,4 +75,43 @@ def galnet_news_detail(request, slug):
 
 def sync_galnet_news(request):
     update_galnet_news(request)
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+
+
+@login_required
+def cmdr_fleet_carrier(request):
+    capi_log = (
+        CapiLog.objects.filter(user_id=request.user.id, endpoint="fleetcarrier")
+        .order_by("date_received")
+        .last()
+    )
+    if isinstance(capi_log, CapiLog):
+        fc_data = ast.literal_eval(capi_log.data)
+        days_remaining = (
+            fc_data["finance"]["bankReservedBalance"]
+            / fc_data["finance"]["maintenance"]
+        )
+        funded_until = datetime.datetime.now() + datetime.timedelta(
+            weeks=days_remaining
+        )
+        data = {
+            "has_carrier_info": True,
+            "data": fc_data,
+            "fc_name": bytes.fromhex(fc_data["name"]["vanityName"]).decode("utf-8"),
+            "arrived_since": parse_datetime(
+                fc_data["itinerary"]["completed"][0]["arrivalTime"]
+            ),
+            "fuel_percent": (int(fc_data["fuel"]) / 1000) * 100,
+            "last_updated": parse_datetime(str(capi_log.date_received)),
+            "funded_until": funded_until,
+        }
+    else:
+        data = {}
+    return render(request, "core/fleet-carrier.html", context=data)
+
+
+@login_required
+def sync_fleet_carrier(request):
+    api = Capi()
+    return_code, data = api.get_fleetcarrier(request.user.id)
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))

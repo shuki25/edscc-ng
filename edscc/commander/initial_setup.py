@@ -226,6 +226,8 @@ class StartSetup(SyncConsumer):
             )
             time.sleep(2)
         else:
+            user = User.objects.get(id=user_id)
+            self.add_user_to_groups(user, ["Fleet Carrier Owner"])
             current = self.update_progress_bar(
                 "Processing Fleet Carrier Profile", current, max_value, return_code
             )
