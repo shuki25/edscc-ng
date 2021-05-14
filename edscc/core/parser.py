@@ -51,11 +51,14 @@ class ParseJournalLog:
             "Bounty": self.bounty,
             "Cargo": self.commander_info,
             "CarrierStats": self.commander_info,
+            "CommunityGoalReward": self.community_goal,
             "Docked": self.docked,
             "EngineerProgress": self.commander_info,
             "MarketBuy": self.market_buy,
             "MarketSell": self.market_sell,
             "Materials": self.commander_info,
+            "MiningRefined": self.mining_refined,
+            "MissionCompleted": self.mission_completed,
             "MultiSellExplorationData": self.multisell_exploration_data,
             "Progress": self.progress,
             "Rank": self.rank,
@@ -363,6 +366,31 @@ class ParseJournalLog:
             self.activity_counter.add_by_attr("stolen_goods", data["Count"])
         if "BlackMarket" in data:
             self.activity_counter.add_by_attr("black_market", data["Count"])
+
+    @transaction.atomic
+    def community_goal(self, data):
+        station_name = self.session.get_attr("station_name")
+        minor_faction_obj = self.find_minor_faction(
+            self.session.get_attr("station_faction")
+        )
+        EarningHistory(
+            user_id=self.user_id,
+            earned_on=parse_datetime(data["timestamp"]),
+            reward=data["Reward"],
+            crew_wage=0,
+            earning_type_id=self.earning_type[data["event"].lower()],
+            minor_faction=minor_faction_obj,
+            notes=station_name,
+        ).save()
+        self.activity_counter.add_by_attr("cg_participated", 1)
+
+    @transaction.atomic
+    def mining_refined(self, data):
+        self.activity_counter.add_by_attr("mining_refined", 1)
+
+    @transaction.atomic
+    def mission_completed(self, data):
+        name = self.get_localized_string(data, "Name") if "Name" in data else ""
 
     def find_minor_faction(self, minor_faction):
         minor_faction = minor_faction.strip()
