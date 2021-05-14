@@ -1,7 +1,7 @@
 {% load i18n %}
 <!-- Sidebar Menu -->
 <nav class="mt-2">
-    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordian="false">
+    <ul class="nav nav-flat nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordian="false">
         {% for category, top_level in menu_list.items %}
             {% for i, menu_item in top_level.items %}
                 {% if menu_item.header %}
