@@ -48,31 +48,28 @@ def build_menu(user):  # noqa C901
             for i, menu_item in top_level.items():
                 menu_items = dict()
                 routes = []
-                if (
-                    "group" in menu_item
-                    and is_in_group(group, menu_item["group"]) is False
-                    and user.is_superuser is False
+                if "group" in menu_item and (
+                    is_in_group(group, menu_item["group"]) or user.is_superuser
                 ):
-                    break
-                for attr, value in menu_item.items():
-                    if attr not in ["group", "counter_sql"]:
-                        menu_items[attr] = value
-                    if attr in ["counter_sql", "alert_sql"]:
-                        if ":user_id" in value:
-                            log.debug("sql: %s" % value)
-                            replace_tag = {":user_id": user.id}
-                            rs = sql_query_with_user(value, replace_tag)
-                        else:
-                            rs = sql_query(value)
-                        if len(rs):
-                            key = "alert" if "alert" in rs[0] else "counter"
-                            menu_items[key] = rs[0][key]
-                    if attr == "route":
-                        routes.append(value)
-                    if attr == "routes":
-                        routes = routes + value
-                if len(menu_items):
-                    subgroup[i] = menu_items
+                    for attr, value in menu_item.items():
+                        if attr not in ["group", "counter_sql"]:
+                            menu_items[attr] = value
+                        if attr in ["counter_sql", "alert_sql"]:
+                            if ":user_id" in value:
+                                log.debug("sql: %s" % value)
+                                replace_tag = {":user_id": user.id}
+                                rs = sql_query_with_user(value, replace_tag)
+                            else:
+                                rs = sql_query(value)
+                            if len(rs):
+                                key = "alert" if "alert" in rs[0] else "counter"
+                                menu_items[key] = rs[0][key]
+                        if attr == "route":
+                            routes.append(value)
+                        if attr == "routes":
+                            routes = routes + value
+                    if len(menu_items):
+                        subgroup[i] = menu_items
             if len(subgroup):
                 final_menu[category] = subgroup
     return final_menu
