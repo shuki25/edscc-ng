@@ -1,4 +1,5 @@
 from django import template
+from django.utils.text import camel_case_to_spaces
 
 register = template.Library()
 
@@ -7,3 +8,8 @@ register = template.Library()
 @register.filter
 def to_space(value, replacement="_"):
     return str(value).replace(replacement, " ")
+
+
+@register.filter
+def camel2space(value):
+    return camel_case_to_spaces(str(value)).capitalize()
