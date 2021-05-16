@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
 {% load i18n gravatar account humanize static %}
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css">
+    {#    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.7/css/responsive.dataTables.min.css">#}
+{% endblock %}
 {% block content %}
     <div class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-9">
+                <div class="col-md-12">
                     <div class="card card-orange card-outline card-outline-tabs border-top-0" style="height: auto;">
                         <div class="card-header p-0 border-bottom-0">
                             <ul class="nav nav-tabs" id="player-journal" role="tablist">
@@ -79,12 +84,12 @@
                                             <button type="button" class="btn btn-success js-upload-files mt-3 mr-2">
                                                 <span class="fas fa-plus pr-2"></span> {% trans 'Add Journal Files' %}
                                             </button>
-{#                                            <button type="button" class="btn btn-primary mt-3 mr-2">#}
-{#                                                <span class="fas fa-cloud-upload-alt pr-2"></span> {% trans 'Upload' %}#}
-{#                                            </button>#}
-{#                                            <button type="button" class="btn btn-warning mt-3">#}
-{#                                                <span class="fas fa-ban pr-2"></span> {% trans 'Cancel' %}#}
-{#                                            </button>#}
+                                            {#                                            <button type="button" class="btn btn-primary mt-3 mr-2">#}
+                                            {#                                                <span class="fas fa-cloud-upload-alt pr-2"></span> {% trans 'Upload' %}#}
+                                            {#                                            </button>#}
+                                            {#                                            <button type="button" class="btn btn-warning mt-3">#}
+                                            {#                                                <span class="fas fa-ban pr-2"></span> {% trans 'Cancel' %}#}
+                                            {#                                            </button>#}
                                         </div>
                                         <div class="container-fluid">
                                             <table id="gallery" class="table table-hover table-sm table-striped text-nowrap">
@@ -123,48 +128,29 @@
                                 </div>
                                 <div class="tab-pane fade" id="edmc-plugin" role="tabpanel"
                                      aria-labelledby="edmc-plugin-tab">
-                                    Reputation: Mauris tincidunt mi at erat gravida, eget tristique urna bibendum.
-                                    Mauris pharetra
-                                    purus ut ligula tempor, et vulputate metus facilisis. Lorem ipsum dolor sit amet,
-                                    consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et
-                                    ultrices posuere cubilia Curae; Maecenas sollicitudin, nisi a luctus interdum, nisl
-                                    ligula placerat mi, quis posuere purus ligula eu lectus. Donec nunc tellus,
-                                    elementum sit amet ultricies at, posuere nec nunc. Nunc euismod pellentesque diam.
+                                    EDMC Plug-in <br>
+                                    // To Do
                                 </div>
                                 <div class="tab-pane fade" id="console" role="tabpanel" aria-labelledby="console-tab">
-                                    <div class="card" style="height: 610px; overflow-y: auto;">
-                                        {% include 'commander/statistics.html' %}
-                                    </div>
+                                    Console<br>
+                                    // To Do
                                 </div>
                                 <div class="tab-pane fade" id="import-history" role="tabpanel"
                                      aria-labelledby="import-history-tab">
-                                    Powerplay: Pellentesque vestibulum commodo nibh nec blandit. Maecenas neque magna,
-                                    iaculis
-                                    tempus turpis ac, ornare sodales tellus. Mauris eget blandit dolor. Quisque
-                                    tincidunt venenatis vulputate. Morbi euismod molestie tristique. Vestibulum
-                                    consectetur dolor a vestibulum pharetra. Donec interdum placerat urna nec pharetra.
-                                    Etiam eget dapibus orci, eget aliquet urna. Nunc at consequat diam. Nunc et felis ut
-                                    nisl commodo dignissim. In hac habitasse platea dictumst. Praesent imperdiet
-                                    accumsan ex sit amet facilisis.
+                                    {#                                    <table id="journal-log" class="display table table-condensed table-striped table-bordered table-hover compact nowrap" width="100%">#}
+                                    <table id="journal-log" class="table table-sm table-dark table-striped table-hover table-condensed nowrap" width="100%">
+                                        <thead>
+                                        <tr>{% for header in datatable %}
+                                            <th>{% trans header %}</th>
+                                        {% endfor %}
+                                        </tr>
+                                        </thead>
+                                    </table>
+
                                 </div>
                             </div>
                         </div>
                         <!-- /.card -->
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card card-orange card-outline">
-                        <h5 class="card-header">
-                            {% trans 'Recent Log Activities' %}
-                        </h5>
-                        <div class="card-body">
-                            <p class="card-text">
-                                Card content
-                            </p>
-                        </div>
-                        <div class="card-footer">
-                            Card footer
-                        </div>
                     </div>
                 </div>
             </div>
@@ -178,4 +164,51 @@
     <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
     <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
     <script src="{% static 'js/journal_upload.js' %}"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap5.min.js"></script>
+    {#    <script src="https://cdn.datatables.net/responsive/2.2.7/js/dataTables.responsive.min.js"></script>#}
+
+    <script>
+        $(() => {
+            var dt_table = $('#journal-log').DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                ajax: {
+                    url: "{% url 'ajax_journal_log' %}",
+                    type: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                    async: true,
+                },
+                dom: "<'row'<'col-sm-3'i>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-3'l><'col-sm-9'p>>",
+                language: {
+                    search: '_INPUT_',
+                    searchPlaceholder: '{% trans "Search..." %}',
+                    info: "{% trans "datatable_info" %}",
+                    infoEmpty: "{% trans "datatable_info_empty" %}",
+                    infoFiltered: "{% trans "datatable_info_filtered" %}",
+                    zeroRecords: "{% trans "datatable_zero_records" %}",
+                    emptyTable: "{% trans "datatable_empty_table" %}",
+                    paginate: {
+                        first: '&laquo;',
+                        previous: '&lsaquo;',
+                        next: '&rsaquo;',
+                        last: '&raquo;'
+                    }
+                },
+                initComplete: function () {
+                    $('.dataTables_filter input[type="search"]').css({
+                        width: '200px', display: 'inline-block'
+                    });
+                },
+                drawCallback: function () {
+                    $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                }
+            });
+        });
+    </script>
 {% endblock %}

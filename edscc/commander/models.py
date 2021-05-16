@@ -266,6 +266,16 @@ class JournalLog(models.Model):
         managed = True
         db_table = "journal_log"
 
+    def get_status(self):
+        status_code = {
+            "Q": "In Queue",
+            "U": "Uploaded",
+            "P": "Parsing",
+            "C": "Processed",
+            "E": "Error",
+        }
+        return status_code[self.progress_code]
+
 
 class EarningHistory(models.Model):
     user = models.ForeignKey(User, models.CASCADE)

@@ -66,7 +66,16 @@ def initial_setup(request):
 
 @login_required
 def game_journal(request):
-    data = {}
+    data = {
+        "datatable": [
+            "#",
+            "Journal Log File",
+            "Game Start",
+            "Game End",
+            "Status",
+            "Errors",
+        ]
+    }
     return render(request, "commander/journal_log.html", context=data)
 
 
