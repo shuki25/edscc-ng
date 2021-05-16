@@ -10,4 +10,34 @@
   color: #b94a48;
 }
 
+.container {
+  position: relative;
+  text-align: center;
+}
+
+.fc-name {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  text-shadow: #000;
+}
+
+.fc-access {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+}
+
+.fc-footer-left {
+  position: absolute;
+  bottom: 8px;
+  left: 16px;
+}
+
+.fc-footer-right {
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+}
+
 /*# sourceMappingURL=project.css.map */
