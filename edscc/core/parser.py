@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from semantic_version import Version
 
 from ..commander.models import (
     ActivityCounter,
@@ -40,6 +41,46 @@ class FileNotFound(Exception):
 
     def __init__(self, message):
         self.message = message
+
+
+class EDVersion(Version):
+    def __init__(self, version_string=None, **kwargs):
+        self.version_xref = {
+            "April Update EDH": "3.4.0",
+            "April Update Patch 1 EDH": "3.4.1",
+            "April Update Patch 2 EDH": "3.4.2",
+            "January Update": "3.6.0",
+            "January Update - Patch 1": "3.6.1",
+            "January Update - Patch 2": "3.6.2",
+            "Fleet Carriers Update": "3.7.0",
+            "Fleet Carriers Update - Patch 1": "3.7.1",
+            "Fleet Carriers Update - Patch 2": "3.7.2",
+            "Fleet Carriers Update - Patch 3": "3.7.3",
+            "Fleet Carriers Update - Patch 4": "3.7.4",
+            "Fleet Carriers Update - Patch 5": "3.7.5",
+            "Fleet Carriers Update - Patch 6": "3.7.6",
+            "Fleet Carriers Update - Patch 7": "3.7.7",
+            "Fleet Carriers Update - Patch 8": "3.7.8",
+            "Fleet Carriers Update - Patch 9": "3.7.9",
+            "Fleet Carriers Update - Patch 10": "3.7.10",
+            "Fleet Carriers Update - Patch 11": "3.7.11",
+            "Fleet Carriers Update - Patch 12": "3.7.12",
+        }
+
+        if version_string:
+            v = version_string.split(".", 3)
+            if v[0].isdigit():
+                for i in range(4 - len(v)):
+                    v.append("0")
+                version_string = ".".join(v[0:3])
+            else:
+                if version_string in self.version_xref:
+                    version_string = self.version_xref[version_string]
+                else:
+                    version_string = "0.0.0"
+            super().__init__(version_string=version_string)
+        else:
+            super().__init__(**kwargs)
 
 
 class ParseJournalLog:
@@ -77,6 +118,7 @@ class ParseJournalLog:
         self.log_date = None
         self.squadron_id = None
         self.parser_log = {}
+        self.log_version = None
 
         if isinstance(user, User):
             self.user_id = User.pk
@@ -99,8 +141,6 @@ class ParseJournalLog:
         if parser_log:
             for row in parser_log:
                 self.parser_log[row.event] = row.counter
-        log.debug("Tracking session %s" % self.session.hash_key)
-        log.debug(self.parser_log)
 
     @transaction.atomic
     def save_parser_log(self):
@@ -131,19 +171,17 @@ class ParseJournalLog:
                 self.parser_log[event["event"]] = 1
 
     def file_header(self, data):
-        log.debug("in file_header")
         self.log_date = parse_datetime(data["timestamp"]).strftime("%Y-%m-%d")
         try:
             self.activity_counter = ActivityCounter.objects.get(
                 user_id=self.user_id, activity_date=self.log_date
             )
-            log.debug("activity_counter record loaded")
         except ActivityCounter.DoesNotExist:
             self.activity_counter = ActivityCounter(
                 user_id=self.user_id, activity_date=self.log_date
             )
             self.activity_counter.save()
-            log.debug("activity_counter record created")
+        self.log_version = EDVersion(data["gameversion"])
 
     def load_game(self, data):
         try:
@@ -160,7 +198,10 @@ class ParseJournalLog:
     def docked(self, data):
         self.session.set_attr("station_name", data["StationName"])
         self.session.set_attr("market_id", data["MarketID"])
-        self.session.set_attr("station_faction", data["StationFaction"]["Name"])
+        if self.log_version < EDVersion("3.3.3"):
+            self.session.set_attr("station_faction", data["StationFaction"])
+        else:
+            self.session.set_attr("station_faction", data["StationFaction"]["Name"])
 
     def undocked(self, data):
         self.session.set_attr("station_name", None)
@@ -228,7 +269,6 @@ class ParseJournalLog:
 
     @transaction.atomic
     def bounty(self, data):
-        log.debug("in bounty")
         reward = data["TotalReward"] if "TotalReward" in data else data["Reward"]
         target_faction = (
             self.get_localized_string(data, "VictimFaction")
@@ -251,7 +291,6 @@ class ParseJournalLog:
                     target_faction,
                 )
         else:
-            log.debug("in reward")
             minor_faction = (
                 self.get_localized_string(data, "Faction") if "Faction" in data else ""
             )
@@ -265,7 +304,6 @@ class ParseJournalLog:
 
     @transaction.atomic
     def redeem_voucher(self, data):
-        log.debug("in redeem_voucher")
         earning_type = data["Type"].lower()
         if "Factions" in data:
             for row in data["Factions"]:
@@ -344,7 +382,6 @@ class ParseJournalLog:
 
     @transaction.atomic
     def market_sell(self, data):
-        log.debug("in market_sell")
         station_name = self.session.get_attr("station_name")
         minor_faction_obj = self.find_minor_faction(
             self.session.get_attr("station_faction")
@@ -398,7 +435,6 @@ class ParseJournalLog:
             return None
         try:
             minor_faction_obj = MinorFaction.objects.get(name=minor_faction)
-            log.debug("found minor faction: %s" % minor_faction)
         except MinorFaction.DoesNotExist:
             minor_faction_obj = MinorFaction(
                 name=minor_faction, player_faction=False, eddb_id=None
@@ -447,7 +483,6 @@ class ParseJournalLogFile(ParseJournalLog):
                 log.debug("%d rows processed" % i)
                 self.activity_counter.save()
                 self.save_parser_log()
-                log.debug(self.parser_log)
             except jsonlines.Error as e:
                 log.debug(e)
                 raise FileNotFound("%s" % file_path)
