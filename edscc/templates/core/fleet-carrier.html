@@ -10,9 +10,9 @@
                         <span class="text-orange h3 text-bold">{{ fc_name }}</span><br>
                         <span class="text-white text-sm">{{ data.name.callsign }}</span>
                     </div>
-                    <div class="fc-access">
-                        Docking: {{ data.dockingAccess|camel2space }}<br>
-                        Notorious {% if data.notoriousAccess == True %}<i class="fas fa-check-circle text-success"></i>{% else %}<i class="fas fa-times-circle text-danger"></i>{% endif %}
+                    <div class="fc-access text-right">
+                        Docking Access to {{ data.dockingAccess|camel2space }}<br>
+                        Notorious Commander {% if data.notoriousAccess == True %}<i class="fas fa-check-circle text-success ml-1"></i>{% else %}<i class="fas fa-times-circle text-danger ml-1"></i>{% endif %}
                     </div>
                     <div class="fc-footer-left">
                         <span class="text-white">{% trans 'Currently in' %} {{ data.currentStarSystem }}</span><br>
