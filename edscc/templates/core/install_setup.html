@@ -1,0 +1,106 @@
+{% extends 'simple_base.html' %}
+{% load i18n %}
+{% block class %} dark-mode login-page{% endblock %}
+{% block body %}
+    <div class="login-box" style="width: 600px;">
+        <div class="content">
+            <!-- Commander box -->
+            <div class="card card-orange shadow" style="height: 400px;">
+                <div class="card-header text-center">
+                    <h1 class="h1"><i class="nav-icon fas fa-download"></i>
+                        &nbsp;{% trans 'Setting up the EDSCC Site' %}
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="overlay-wrapper">
+                        <p>{% blocktrans %}
+                            Welcome to the Elite Dangerous: Squadron Command Center. Because it is the first time
+                            running this site, please wait while the site is being setup with the initial data and
+                            downloading additional dependency data from EDDB.
+                        {% endblocktrans %}</p>
+                        <div class="text-center" style="margin-top: 40px;">
+                            <div><i class="fas fa-3x fa-sync-alt fa-spin"></i>
+                                <div class="text-bold pt-2">{% trans 'Setting up' %}...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="progress" style="height: 2px;">
+                    <div id="progress_bar" class="progress-bar bg-orange" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer text-sm" id="status_bar">
+                    {% trans 'Status' %}: {% trans 'Initializing' %}...
+                </div>
+                <!-- /.card-footer-->
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+    <!-- /.modal -->
+    <div class="modal fade" id="modal-failed" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-danger">
+                <div class="modal-header">
+                    <h4 class="modal-title">Setup Failed</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Check your log files for error messages.</p>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-outline-light" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+{% endblock %}
+{% block javascripts %}
+    {{ block.super }}
+    <script>
+        $(() => {
+            const path = 'wss://' + window.location.host + '/ws/core/begin_install/';
+            const statusSocket = new WebSocket(path);
+
+            statusSocket.onmessage = function (e) {
+                const data = JSON.parse(e.data);
+                console.log(data.message);
+                console.log(data.server_code);
+                $('#progress_bar').attr('aria-valuenow', data.progress_value);
+                $('#progress_bar').attr('style', 'width:' + data.progress_value + '%;');
+                if (data.server_code.Status == 500) {
+                    $('#status_bar').html(data.message);
+                    $('#modal-failed').modal()
+                } else if (data.message == 'DONE') {
+                    setTimeout(() => {
+                        $(location).attr('href', '/');
+                    }, 1500);
+                } else {
+                    $('#status_bar').html(data.message);
+                }
+            }
+
+            statusSocket.onclose = function (e) {
+                console.log(e.data);
+                console.log('disconnected');
+                // alert('unexpected disconnect');
+                // $(location).attr('href', '/');
+            }
+
+            statusSocket.onopen = function (e) {
+                console.log('opening websocket')
+                console.log('sending message')
+                statusSocket.send(JSON.stringify({
+                    'message': 'start-setup'
+                }));
+            }
+        });
+
+    </script>
+{% endblock %}

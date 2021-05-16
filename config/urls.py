@@ -14,6 +14,7 @@ from edscc.core.views import (
     placeholder,
     privacy_policy,
     sync_galnet_news,
+    install_setup,
 )
 
 urlpatterns = [
@@ -21,12 +22,13 @@ urlpatterns = [
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),
     # Django Admin, use {% url 'admin:index' %}
-    path('admin/sync/galnet_news/', sync_galnet_news, name="sync-galnet-news"),
+    path("admin/sync/galnet_news/", sync_galnet_news, name="sync-galnet-news"),
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     path("", home_page, name="home"),
+    path("install-setup/", install_setup, name="install-setup"),
     path("i18n/", include("django.conf.urls.i18n")),
     path("galnet/", galnet_news, name="galnet"),
     path("galnet/<slug:slug>", galnet_news_detail, name="galnet-detail"),

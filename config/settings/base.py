@@ -47,7 +47,7 @@ USE_L10N = True
 USE_TZ = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#locale-paths
 LOCALE_PATHS = [str(ROOT_DIR / "locale")]
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # DATABASES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
@@ -354,6 +354,7 @@ FDEV_BETA = False
 USER_AGENT = "EDSCC-v2.0-alpha"
 GALNET_FEED_URL = "https://elitedangerous-website-backend-production.elitedangerous.com/api/galnet?_format=json"
 GALNET_IMAGE_URL = "https://hosting.zaonce.net/elite-dangerous/galnet/"
+EDDB_URL = "https://eddb.io/archive/v6/"
 
 SOCIALACCOUNT_PROVIDERS = {
     "frontier": {"SCOPE": ["auth", "capi"], "VERIFIED_EMAIL": True},

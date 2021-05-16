@@ -1,23 +1,22 @@
 import ast
 import datetime
 import logging
+import traceback
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render, resolve_url
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
+from ..commander.models import Status
 from .capi import Capi
 from .models import CapiLog, Carousel, CommunityGoal, GalnetNews
 from .utils import update_galnet_news
 
 log = logging.getLogger(__name__)
-
-
-# Create your views here.
 
 
 def login_required_alert(request):
@@ -91,6 +90,7 @@ def cmdr_fleet_carrier(request):
             fc_data["finance"]["bankReservedBalance"]
             / fc_data["finance"]["maintenance"]
         )
+
         funded_until = datetime.datetime.now() + datetime.timedelta(
             weeks=days_remaining
         )
@@ -115,3 +115,17 @@ def sync_fleet_carrier(request):
     api = Capi()
     return_code, data = api.get_fleetcarrier(request.user.id)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+
+
+def install_setup(request):
+    status = None
+    try:
+        status = Status.objects.get(pk=1)
+    except Exception as e:
+        log.debug("initial_setup: %s" % e)
+        traceback.print_exc()
+    if status is None:
+        return render(request, "core/install_setup.html")
+    else:
+        log.debug("Install setup was previously done, setup skipped")
+        return redirect(resolve_url("home"))
