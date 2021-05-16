@@ -3,7 +3,6 @@
 {% block css %}
     {{ block.super }}
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css">
-    {#    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.7/css/responsive.dataTables.min.css">#}
 {% endblock %}
 {% block content %}
     <div class="content">
@@ -84,12 +83,6 @@
                                             <button type="button" class="btn btn-success js-upload-files mt-3 mr-2">
                                                 <span class="fas fa-plus pr-2"></span> {% trans 'Add Journal Files' %}
                                             </button>
-                                            {#                                            <button type="button" class="btn btn-primary mt-3 mr-2">#}
-                                            {#                                                <span class="fas fa-cloud-upload-alt pr-2"></span> {% trans 'Upload' %}#}
-                                            {#                                            </button>#}
-                                            {#                                            <button type="button" class="btn btn-warning mt-3">#}
-                                            {#                                                <span class="fas fa-ban pr-2"></span> {% trans 'Cancel' %}#}
-                                            {#                                            </button>#}
                                         </div>
                                         <div class="container-fluid">
                                             <table id="gallery" class="table table-hover table-sm table-striped text-nowrap">
@@ -117,7 +110,7 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="progress">
-                                                        <div class="progress-bar progress-bar-striped progress-bar-animated progress-bar-warning" role="progressbar" style="width: 0%;">
+                                                        <div class="progress-bar progress-bar-striped progress-bar-animated progress-bar-warning" role="progressbar" style="width: 0">
                                                             0%
                                                         </div>
                                                     </div>
@@ -137,8 +130,7 @@
                                 </div>
                                 <div class="tab-pane fade" id="import-history" role="tabpanel"
                                      aria-labelledby="import-history-tab">
-                                    {#                                    <table id="journal-log" class="display table table-condensed table-striped table-bordered table-hover compact nowrap" width="100%">#}
-                                    <table id="journal-log" class="table table-sm table-dark table-striped table-hover table-condensed nowrap" width="100%">
+                                    <table id="journal-log" class="table table-sm table-dark table-striped table-hover table-condensed nowrap" style="width: 100%;">
                                         <thead>
                                         <tr>{% for header in datatable %}
                                             <th>{% trans header %}</th>
@@ -166,11 +158,9 @@
     <script src="{% static 'js/journal_upload.js' %}"></script>
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap5.min.js"></script>
-    {#    <script src="https://cdn.datatables.net/responsive/2.2.7/js/dataTables.responsive.min.js"></script>#}
-
     <script>
         $(() => {
-            var dt_table = $('#journal-log').DataTable({
+            $('#journal-log').DataTable({
                 processing: true,
                 serverSide: true,
                 responsive: true,
