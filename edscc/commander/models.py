@@ -151,7 +151,9 @@ class CrimeType(models.Model):
 
 class Crime(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
-    squadron = models.ForeignKey("squadron.Squadron", models.CASCADE)
+    squadron = models.ForeignKey(
+        "squadron.Squadron", models.CASCADE, blank=True, null=True
+    )
     crime_type = models.ForeignKey("CrimeType", models.CASCADE)
     minor_faction = models.ForeignKey(
         "squadron.MinorFaction", models.CASCADE, blank=True, null=True
