@@ -130,14 +130,17 @@
                                 </div>
                                 <div class="tab-pane fade" id="import-history" role="tabpanel"
                                      aria-labelledby="import-history-tab">
-                                    <table id="journal-log" class="table table-sm table-dark table-striped table-hover table-condensed nowrap" style="width: 100%;">
-                                        <thead>
-                                        <tr>{% for header in datatable %}
-                                            <th>{% trans header %}</th>
-                                        {% endfor %}
-                                        </tr>
-                                        </thead>
+                                    <div class="table-responsive">
+                                       <table id="journal-log" class="table table-sm table-dark table-striped table-hover table-condensed nowrap" style="width: 100%">
+{#                                        <thead>#}
+{#                                        <tr>{% for header in datatable %}#}
+{#                                            <th>{% trans header %}</th>#}
+{#                                        {% endfor %}#}
+{#                                        </tr>#}
+{#                                        </thead>#}
                                     </table>
+                                    </div>
+
 
                                 </div>
                             </div>
@@ -155,50 +158,50 @@
     <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
     <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
     <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
+    <script src="{% static 'ajax_datatable/js/utils.js' %}"></script>
     <script src="{% static 'js/journal_upload.js' %}"></script>
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(() => {
-            $('#journal-log').DataTable({
-                processing: true,
-                serverSide: true,
-                responsive: true,
-                ajax: {
-                    url: "{% url 'ajax_journal_log' %}",
-                    type: "POST",
-                    headers: {
-                        "X-CSRFToken": "{{ csrf_token }}",
-                    },
-                    async: true,
-                },
-                dom: "<'row'<'col-sm-3'i>>" +
+            AjaxDatatableViewUtils.initialize_table(
+                $('#journal-log'),
+                "{% url 'ajax_journal_log' %}",
+                {
+                    processing: true,
+                    serverSide: true,
+                    autoWidth: false,
+                    scrollX: false,
+                    dom: "<'row'<'col-sm-3'i>>" +
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-3'l><'col-sm-9'p>>",
-                language: {
-                    search: '_INPUT_',
-                    searchPlaceholder: '{% trans "Search..." %}',
-                    info: "{% trans "datatable_info" %}",
-                    infoEmpty: "{% trans "datatable_info_empty" %}",
-                    infoFiltered: "{% trans "datatable_info_filtered" %}",
-                    zeroRecords: "{% trans "datatable_zero_records" %}",
-                    emptyTable: "{% trans "datatable_empty_table" %}",
-                    paginate: {
-                        first: '&laquo;',
-                        previous: '&lsaquo;',
-                        next: '&rsaquo;',
-                        last: '&raquo;'
-                    }
-                },
-                initComplete: function () {
+                    language: {
+                        search: '_INPUT_',
+                        searchPlaceholder: '{% trans "Search..." %}',
+                        info: "{% trans "datatable_info" %}",
+                        infoEmpty: "{% trans "datatable_info_empty" %}",
+                        infoFiltered: "{% trans "datatable_info_filtered" %}",
+                        zeroRecords: "{% trans "datatable_zero_records" %}",
+                        emptyTable: "{% trans "datatable_empty_table" %}",
+                        paginate: {
+                            first: '&laquo;',
+                            previous: '&lsaquo;',
+                            next: '&rsaquo;',
+                            last: '&raquo;'
+                        }
+                    },
+                    initComplete: function () {
                     $('.dataTables_filter input[type="search"]').css({
                         width: '200px', display: 'inline-block'
                     });
+                    },
+                    drawCallback: function () {
+                        $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                    }
+                }, {
+
                 },
-                drawCallback: function () {
-                    $('.dataTables_paginate > .pagination').addClass('pagination-sm');
-                }
-            });
+            );
         });
     </script>
 {% endblock %}
