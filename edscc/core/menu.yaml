@@ -57,7 +57,7 @@ commander:
     group: ["Fleet Carrier Owner"]
   6:
     item: "Activities Report"
-    route: "app_player_reports"
+    route: "activities_report"
     icon: "fa fa-chart-line"
     group: ["Commander"]
   7:

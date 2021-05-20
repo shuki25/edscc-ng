@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load i18n gravatar account humanize static %}
+{% block css %}
+    {{ block.super }}
+    {#    <link rel="stylesheet" href="{% static 'ajax_datatable/css/style.css' %}">#}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-outline card-orange clearfix">
+                        <span class="h5 text-orange">
+                            <i class="fas fa-chart-line mr-1"></i>
+                        {% blocktrans with cmdr=user_profile.commander_name %}
+                            Activities Report for Commander {{ cmdr }}
+                        {% endblocktrans %}
+                        </span>
+                        <div class="float-right">
+                            <div class="p-0 m-0">
+                                <form class="input-group-sm" method="post" href="{% url 'activities_report' %}">
+                                    <fieldset>
+                                        <label class="mr-1">{% trans 'Select Report' %}:</label>
+                                        <select id="report-picker" class="form-control text-sm" name="selected-report"
+                                                style="width: 320px;">
+                                            {% for key, value in available_reports.items|dictsort:1 %}
+                                                <option value="{{ key }}"
+                                                        {% if key == report_name %} selected="selected"{% endif %}>{% trans value %}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% csrf_token %}
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="table-responsive">
+                            <table id="activities-report" class="table table-sm table-dark table-striped table-hover table-condensed nowrap" style="width: 100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(() => {
+            AjaxDatatableViewUtils.initialize_table(
+                $('#activities-report'),
+                "{% url 'ajax_activities_report' report_name %}",
+                {
+                    processing: true,
+                    serverSide: true,
+                    autoWidth: false,
+                    scrollX: false,
+                    dom: "<'row'<'col-sm-3'i>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-3'l><'col-sm-9'p>>",
+                    language: {
+                        search: '_INPUT_',
+                        searchPlaceholder: '{% trans "Search..." %}',
+                        info: "{% trans "datatable_info" %}",
+                        infoEmpty: "{% trans "datatable_info_empty" %}",
+                        infoFiltered: "{% trans "datatable_info_filtered" %}",
+                        zeroRecords: "{% trans "datatable_zero_records" %}",
+                        emptyTable: "{% trans "datatable_empty_table" %}",
+                        paginate: {
+                            first: '&laquo;',
+                            previous: '&lsaquo;',
+                            next: '&rsaquo;',
+                            last: '&raquo;'
+                        }
+                    },
+                    initComplete: function () {
+                        $('.dataTables_filter input[type="search"]').css({
+                            width: '200px', display: 'inline-block'
+                        });
+                    },
+                    drawCallback: function () {
+                        $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                    }
+                }, {
+                },
+            );
+        });
+
+        $('#report-picker').selectmenu({
+            width: 325,
+            change: function (event, ui) {
+                this.form.submit()
+            }
+        });
+    </script>
+{% endblock %}

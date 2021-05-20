@@ -17,8 +17,14 @@ from django.urls import path
 
 from edscc.core.views import placeholder, cmdr_fleet_carrier, sync_fleet_carrier
 
-from .views import about_commander, game_journal, game_journal_upload, initial_setup
-from .datatables import AjaxJournalLog
+from .views import (
+    about_commander,
+    game_journal,
+    game_journal_upload,
+    initial_setup,
+    activities_report,
+)
+from .ajax_datatables import AjaxJournalLog
 
 urlpatterns = [
     path("profile/", about_commander, name="profile"),
@@ -27,5 +33,11 @@ urlpatterns = [
     path("initial_setup/", initial_setup, name="initial_setup"),
     path("game_journal/", game_journal, name="game_journal"),
     path("game_journal/upload/", game_journal_upload, name="game_journal_upload"),
+    path("activities_report/", activities_report, name="activities_report"),
     path("datatable/journal_log", AjaxJournalLog.as_view(), name="ajax_journal_log"),
+    path(
+        "datatable/report/commander/<slug:report>/",
+        activities_report,
+        name="ajax_activities_report",
+    ),
 ]

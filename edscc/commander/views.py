@@ -9,11 +9,13 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render, resolve_url
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import gettext as _
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from edscc.core.utils import evaluate_journal_log
 
 from .forms import JournalLogForm
 from .models import Commander, CommanderInfo, UserProfile
+from .ajax_datatables import activities_report_title, activities_report_callable
 
 log = logging.getLogger(__name__)
 
@@ -64,18 +66,31 @@ def initial_setup(request):
         return redirect(resolve_url("home"))
 
 
+@ensure_csrf_cookie
+@login_required
+def activities_report(request, report=None):
+
+    if report in activities_report_callable:
+        log.debug("is executing activities report callable")
+        callable_class = activities_report_callable[report]
+        return callable_class.as_view()(request)
+    else:
+        report_name = (
+            request.POST.get("selected-report")
+            if request.POST.get("selected-report")
+            else "earning_history"
+        )
+
+    data = {
+        "available_reports": activities_report_title,
+        "report_name": report_name,
+    }
+    return render(request, "commander/activities_report.html", context=data)
+
+
 @login_required
 def game_journal(request):
-    data = {
-        "datatable": [
-            "#",
-            "Journal Log File",
-            "Game Start",
-            "Game End",
-            "Status",
-            "Errors",
-        ]
-    }
+    data = {}
     return render(request, "commander/journal_log.html", context=data)
 
 
