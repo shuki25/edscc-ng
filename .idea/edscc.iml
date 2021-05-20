@@ -21,6 +21,8 @@
     <orderEntry type="library" name="dataTables.bootstrap5" level="application" />
     <orderEntry type="library" name="responsive.dataTables" level="application" />
     <orderEntry type="library" name="dataTables.responsive" level="application" />
+    <orderEntry type="library" name="jquery-ui" level="application" />
+    <orderEntry type="module" module-name="venv" />
   </component>
   <component name="PackageRequirementsSettings">
     <option name="requirementsPath" value="$MODULE_DIR$/requirements/base.txt" />
