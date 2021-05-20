@@ -18,9 +18,9 @@
                             {{ article.title }}<br><span class="text-sm">{{ article.ed_date }}</span>
                         </h5>
                         <div class="card-body">
-                            {% if item.first_image %}
+                            {% if article.first_image %}
                                 <img class="d-block w-100" src="
-                                        {{ galnet_img_url }}{{ item.first_image|default:'' }}.png" style="height: 400px; object-fit: cover"/>
+                                        {{ galnet_img_url }}{{ article.first_image|default:'' }}.png" style="height: 400px; object-fit: cover"/>
                             {% else %}
                                 <img class="d-block w-100" src="{% static 'img/galnet-news-placeholder.jpg' %}" style="height: 400px; object-fit: cover"/>
                             {% endif %}

@@ -12,4 +12,4 @@ def to_space(value, replacement="_"):
 
 @register.filter
 def camel2space(value):
-    return camel_case_to_spaces(str(value)).capitalize()
+    return camel_case_to_spaces(str(value)).title()
