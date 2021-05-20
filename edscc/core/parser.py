@@ -1,4 +1,5 @@
 import copy
+import json
 import logging
 import re
 import time
@@ -16,6 +17,8 @@ from ..commander.models import (
     ActivityCounter,
     Commander,
     CommanderInfo,
+    Crime,
+    CrimeType,
     EarningHistory,
     FactionActivity,
     JournalLog,
@@ -68,10 +71,11 @@ class EDVersion(Version):
         }
 
         if version_string:
-            v = version_string.split(".", 3)
+            v = version_string.split(".", 4)
             if v[0].isdigit():
                 for i in range(4 - len(v)):
                     v.append("0")
+                v = [str(int(re.sub("[^0-9]", "", i))) for i in v]
                 version_string = ".".join(v[0:3])
             else:
                 if version_string in self.version_xref:
@@ -93,6 +97,7 @@ class ParseJournalLog:
             "Cargo": self.commander_info,
             "CarrierStats": self.commander_info,
             "CommunityGoalReward": self.community_goal,
+            "CommitCrime": self.commit_crime,
             "Docked": self.docked,
             "EngineerProgress": self.commander_info,
             "MarketBuy": self.market_buy,
@@ -106,7 +111,7 @@ class ParseJournalLog:
             "RedeemVoucher": self.redeem_voucher,
             "Reputation": self.commander_info,
             "SAAScanComplete": self.saa_scan_complete,
-            "SellExplorationData": None,
+            "SellExplorationData": self.to_do,
             "Shutdown": self.undocked,
             "Statistics": self.commander_info,
             "Undocked": self.undocked,
@@ -114,6 +119,7 @@ class ParseJournalLog:
 
         self.rank_dict = _rank_xref()
         self.earning_type = _earning_type_xref()
+        self.crime_type = _crime_type_xref()
         self.activity_counter = ActivityCounter()
         self.log_date = None
         self.squadron_id = None
@@ -170,6 +176,9 @@ class ParseJournalLog:
             else:
                 self.parser_log[event["event"]] = 1
 
+    def to_do(self, data):
+        pass
+
     def file_header(self, data):
         self.log_date = parse_datetime(data["timestamp"]).strftime("%Y-%m-%d")
         try:
@@ -197,9 +206,13 @@ class ParseJournalLog:
 
     def docked(self, data):
         self.session.set_attr("station_name", data["StationName"])
-        self.session.set_attr("market_id", data["MarketID"])
+        if self.log_version >= EDVersion("3.0.0"):
+            self.session.set_attr("market_id", data["MarketID"])
         if self.log_version < EDVersion("3.3.3"):
-            self.session.set_attr("station_faction", data["StationFaction"])
+            if "StationFaction" in data:
+                self.session.set_attr("station_faction", data["StationFaction"])
+            elif "Faction" in data:
+                self.session.set_attr("station_faction", data["Faction"])
         else:
             self.session.set_attr("station_faction", data["StationFaction"]["Name"])
 
@@ -429,6 +442,36 @@ class ParseJournalLog:
     def mission_completed(self, data):
         name = self.get_localized_string(data, "Name") if "Name" in data else ""
 
+    @transaction.atomic
+    def commit_crime(self, data):
+        log.debug("in commit_crime")
+        log.debug("data: %s" % data)
+        self.activity_counter.add_by_attr("crimes_committed", 1)
+        crime_committed = data["CrimeType"].lower() if "CrimeType" in data else ""
+
+        if crime_committed in self.crime_type:
+            crime_type_id = self.crime_type[crime_committed]
+            notes = None
+        else:
+            crime_type_id = self.crime_type["other"]
+            notes = data["CrimeType"]
+
+        minor_faction_obj = self.find_minor_faction(
+            self.get_localized_string(data, "Faction") if "Faction" in data else ""
+        )
+        victim = self.get_localized_string(data, "Victim") if "Victim" in data else ""
+        Crime(
+            user_id=self.user_id,
+            committed_on=parse_datetime(data["timestamp"]),
+            victim=victim,
+            fine=data["Fine"] if "Fine" in data else "0",
+            bounty=data["Bounty"] if "Bounty" in data else "0",
+            minor_faction=minor_faction_obj,
+            crime_type_id=crime_type_id,
+            squadron_id=self.squadron_id,
+            notes=notes,
+        ).save()
+
     def find_minor_faction(self, minor_faction):
         minor_faction = minor_faction.strip()
         if minor_faction == "":
@@ -510,3 +553,16 @@ def _earning_type_xref():
         earning_type_dict[row.name.lower()] = row.id
 
     return earning_type_dict
+
+
+def _crime_type_xref():
+    crime_type_dict = defaultdict(dict)
+    crime_type_qs = CrimeType.objects.all()
+    for row in crime_type_qs:
+        crime_type_dict[row.name.lower()] = row.id
+        if row.alias:
+            alias_list = json.loads(row.alias)
+            for alias in alias_list:
+                crime_type_dict[alias.lower()] = row.id
+
+    return crime_type_dict
