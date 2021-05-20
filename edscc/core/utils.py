@@ -151,6 +151,8 @@ def evaluate_journal_log(user_id, file_path):  # noqa C901
             try:
                 with open(file_path, "r") as reader:
                     is_valid = True
+                    is_beta_file = False
+                    game_version = None
                     file_type = "application/jsonl"
                     while True:
                         row = reader.readline()
@@ -161,6 +163,10 @@ def evaluate_journal_log(user_id, file_path):  # noqa C901
                             game_end = data["timestamp"]
                             if data["event"] == "Fileheader":
                                 is_journal_file = True
+                                if "beta" in data["gameversion"].lower():
+                                    is_journal_file = False
+                                    is_beta_file = True
+                                    game_version = data["gameversion"]
                                 game_start = data["timestamp"]
                             if data["event"] == "LoadGame":
                                 if data["Commander"] == user_profile.commander_name:
@@ -178,9 +184,11 @@ def evaluate_journal_log(user_id, file_path):  # noqa C901
         else:
             file_type = file_type.mime
 
-        if not is_valid or not is_journal_file or not is_true_commander:
+        if not is_valid or not is_journal_file or not is_true_commander or is_beta_file:
             if is_true_commander is False:
                 message = "%s [%s]" % (_("Wrong Commander"), commander)
+            elif is_beta_file:
+                message = "%s: %s" % (_("Is a beta file"), game_version)
             else:
                 message = _("Not a Journal file")
             data = {
