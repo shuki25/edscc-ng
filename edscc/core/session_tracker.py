@@ -38,8 +38,6 @@ class SessionTrackerManager:
             }
             self.session_obj = SessionTracker(hash_key=self.hash_key, payload=payload)
             self.session_obj.save()
-        log.debug("Tracking session %s" % self.hash_key)
-        log.debug("Session payload: %s" % self.session_obj.payload)
 
     def get_attr(self, key):
         if key in self.session_obj.payload:
@@ -48,4 +46,3 @@ class SessionTrackerManager:
     def set_attr(self, key, value):
         self.session_obj.payload[key] = value
         self.session_obj.save()
-        log.debug("Session set_attr %s: %s" % (key, value))
