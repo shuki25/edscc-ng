@@ -61,3 +61,59 @@ $red: #b94a48;
     bottom: 8px;
     right: 16px;
 }
+
+#report-picker-button {
+    font-weight: normal;
+    border: 1px solid #1D1D1D;
+    background: #1F282C;
+    color: #E0DFDE;
+}
+
+.input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
+    height: 28px;
+    padding: 5px 10px;
+    font-size: 11px;
+    line-height: 1.5;
+    border-radius: 0;
+    border: 1px solid #CCD0D9;
+}
+
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+    border: 1px solid #E9A23B;
+    /*background: #464546;*/
+    color: #E9A23B;
+}
+
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+    border: 1px solid #5C9FEA;
+    /*background: #007FFF;*/
+    font-weight: normal;
+    /*color: #FFF;*/
+}
+
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus, .ui-button:hover, .ui-button:focus {
+    border: 1px solid #CCC;
+    background: #464546;
+    font-weight: normal;
+    color: #E0DFDE;
+}
+
+.ui-widget-content {
+    border: 1px solid #DDD;
+    background: #1F1F1F;
+    color: #E0DFDE;
+}
+
+.ui-widget-header {
+    border: 1px solid #DDD;
+    background: #303030;
+    color: #E8E8E8;
+    font-weight: bold;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+    font-weight: normal;
+    border: 1px solid #1D1D1D;
+    background: #1D1D1D;
+    color: #E0DFDE;
+}
