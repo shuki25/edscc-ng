@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 
 # Create your models here.
@@ -39,9 +40,28 @@ class Rank(models.Model):
 
 
 class Squadron(models.Model):
+    ENGLISH = "en"
+    FRENCH = "fr"
+    GERMAN = "de"
+    PORTUGUESE = "pt"
+    RUSSIAN = "ru"
+    SPANISH = "es"
+
+    LANGUAGE_CHOICES = [
+        (ENGLISH, _("English")),
+        (FRENCH, _("French")),
+        (GERMAN, _("German")),
+        (PORTUGUESE, _("Portuguese")),
+        (RUSSIAN, _("Russian")),
+        (SPANISH, _("Spanish")),
+    ]
+
     name = models.CharField(max_length=255)
     id_code = models.CharField(max_length=4, blank=True, null=True)
     active = models.CharField(max_length=1, blank=True, null=True)
+    primary_language = models.CharField(
+        max_length=2, choices=LANGUAGE_CHOICES, default=ENGLISH
+    )
     admin = models.OneToOneField(User, models.CASCADE)
     faction = models.ForeignKey(Faction, models.CASCADE, blank=True, null=True)
     power = models.ForeignKey(Power, models.CASCADE, blank=True, null=True)
