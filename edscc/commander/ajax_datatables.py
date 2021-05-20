@@ -377,6 +377,74 @@ class AjaxCrimeHistorySummary(AjaxDatatableView):
             return value
 
 
+class AjaxCrimeHistorySummaryFaction(AjaxDatatableView):
+    model = Crime
+    title = "Criminal History Summary"
+    initial_order = [["crime_type__name", "asc"]]
+    length_menu = [[15, 25, 50, 100], [15, 25, 50, 100]]
+    search_values_separator = "+"
+    show_column_filters = False
+
+    column_defs = [
+        {
+            "name": "crime_type__name",
+            "title": _("Crime"),
+            "searchable": False,
+            "visible": True,
+        },
+        {
+            "name": "minor_faction__name",
+            "title": _("Minor Faction Issued By"),
+            "searchable": False,
+            "visible": True,
+        },
+        {
+            "name": "num_crimes",
+            "title": _("Count"),
+            "searchable": False,
+            "visible": True,
+        },
+        {
+            "name": "total_fine",
+            "title": _("Total Fine"),
+            "searchable": False,
+            "visible": True,
+        },
+        {
+            "name": "total_bounty",
+            "title": _("Total Bounty"),
+            "searchable": False,
+            "visible": True,
+        },
+    ]
+
+    def get_initial_queryset(self, request=None):
+        return (
+            Crime.objects.filter(user_id=request.user.id)
+            .values(
+                "crime_type__name",
+                "minor_faction__name",
+            )
+            .annotate(
+                num_crimes=Count("minor_faction__name"),
+                total_fine=Sum("fine"),
+                total_bounty=Sum("bounty"),
+            )
+        )
+
+    def render_column(self, row, column):
+        if column in ["total_fine", "total_bounty"]:
+            log.debug(row, column)
+            return escape(
+                number_format(row[column], use_l10n=True, force_grouping=True)
+            )
+        else:
+            value = row[column]
+            if column == "crime_type__name":
+                value = _(camel_case_to_spaces(str(value)).title())
+            return value
+
+
 class AjaxJournalLog(AjaxDatatableView):
     model = JournalLog
     title = "Journal Log"
@@ -455,6 +523,7 @@ activities_report_callable = {
     "minor_faction_activities_summary": AjaxMinorFactionActivitiesSummary,
     "criminal_history": AjaxCrimeHistory,
     "criminal_history_summary": AjaxCrimeHistorySummary,
+    "criminal_history_summary_faction": AjaxCrimeHistorySummaryFaction,
 }
 
 activities_report_title = {
@@ -466,4 +535,5 @@ activities_report_title = {
     "minor_faction_activities_summary": _("Minor Faction Activities Summary"),
     "criminal_history": _("Criminal History (Detailed)"),
     "criminal_history_summary": _("Criminal History Summary"),
+    "criminal_history_summary_faction": _("Criminal History Summary by Faction"),
 }
