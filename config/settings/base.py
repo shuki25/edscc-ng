@@ -91,6 +91,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "markdownify",
     "channels",
+    "ajax_datatable",
 ]
 
 LOCAL_APPS = [
