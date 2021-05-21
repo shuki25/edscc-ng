@@ -112,7 +112,7 @@ def cmdr_fleet_carrier(request):
 
 @login_required
 def sync_fleet_carrier(request):
-    api = Capi()
+    api = Capi(request)
     return_code, data = api.get_fleetcarrier(request.user.id)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
