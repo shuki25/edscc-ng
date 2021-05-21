@@ -14,7 +14,7 @@
   font: normal normal normal 14px/1 ed-asset;
   font-size: inherit;
   text-rendering: auto;
-  vertical-align: -5%;
+  vertical-align: -12%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -46,7 +46,7 @@
   font-size: 5em;
 }
 
-i {
+i.ed-asset {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'ed-asset';
   speak: none;
@@ -54,6 +54,7 @@ i {
   font-weight: normal;
   font-variant: normal;
   text-transform: none;
+  vertical-align: -17%;
   line-height: 1;
 
   /* Better Font Rendering =========== */
