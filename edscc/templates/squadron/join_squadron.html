@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load i18n static humanize markdownify formatting %}
+{% block content %}
+    <div class="container-fluid pl-3 pr-3">
+        <div class="row">
+            <div class="col-md-12" style="overflow: hidden;">
+                <div>
+                    <img src="{% static 'img/squadron_header.png' %}" style=" width: 100%; object-fit: contain;" alt="Squadron">
+                    <div class="fc-name">
+                        <span class="text-orange h3 text-bold">{% trans 'Join a Squadron' %}</span><br>
+                        <span class="text-white text-sm">Something goes here...</span>
+                    </div>
+                    <div class="fc-access text-right">
+                        Something else goes here...
+                    </div>
+                    <div class="fc-footer-left">
+                        Anything here?
+                    </div>
+                    <div class="fc-footer-right">
+                        <a id="sync_button" href="{% url 'sync_fleet_carrier' %}" class="btn btn-outline-success float-right mr-2 mb-1"><i id="sync_icon" class="fas fa-sync-alt mr-1"></i> {% trans 'Sync with Frontier' %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="panel-1" style="display: block;">
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <div class="info-box bg-info shadow">
+                        <span class="info-box-icon"><i class="fas fa-dollar-sign"></i></span>
+                        <div class="info-box-content">
+                            <span class="text-lg text-bold">{% trans 'Carrier Balance' %}</span>
+                            <span class="text-md">{{ data.balance|intcomma }}</span>
+                        </div>
+                    </div>
+                    <div class="card shadow">
+                        <h5 class="card-header">{% trans 'Current Finances' %}</h5>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover table-sm table-striped text-nowrap">
+                                <thead>
+                                <tr>
+                                    <th style="width: 80%;">{% trans 'Description' %}</th>
+                                    <th class="text-right" style="width: 20%;">{% trans 'Value' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for label, value in data.finance.items %}
+                                    <tr>
+                                        <td>{% trans label|camel2space %}</td>
+                                        <td class="text-right">{{ value|intcomma }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer text-right text-sm">
+                            Updated {{ last_updated|timesince }} ago
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-box bg-success shadow">
+                        <span class="info-box-icon"><i class="fas fa-funnel-dollar"></i></span>
+                        <div class="info-box-content">
+                            <span class="text-lg text-bold">{% trans 'Upkeep is Funded for' %}</span>
+                            <span class="text-md">{{ funded_until|timeuntil }}</span>
+                        </div>
+                    </div>
+                    <div class="card shadow">
+                        <h5 class="card-header">{% trans 'Market Finances' %}</h5>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover table-sm table-striped text-nowrap">
+                                <thead>
+                                <tr>
+                                    <th style="width: 80%;">{% trans 'Description' %}</th>
+                                    <th class="text-right" style="width: 20%;">{% trans 'Value' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for label, value in data.marketFinances.items %}
+                                    <tr>
+                                        <td>{% trans label|camel2space %}</td>
+                                        <td class="text-right">{{ value|intcomma }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer text-right text-sm">
+                            Updated {{ last_updated|timesince }} ago
+                        </div>
+                    </div>
+                    <div class="card shadow">
+                        <h5 class="card-header">{% trans 'Blackmarket Finances' %}</h5>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover table-sm table-striped text-nowrap">
+                                <thead>
+                                <tr>
+                                    <th style="width: 80%;">{% trans 'Description' %}</th>
+                                    <th class="text-right" style="width: 20%;">{% trans 'Value' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for label, value in data.blackmarketFinances.items %}
+                                    <tr>
+                                        <td>{% trans label|camel2space %}</td>
+                                        <td class="text-right">{{ value|intcomma }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer text-right text-sm">
+                            Updated {{ last_updated|timesince }} ago
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="info-box bg-orange shadow">
+                        <span class="info-box-icon"><i class="fas fa-gas-pump "></i></span>
+                        <div class="info-box-content">
+                            <span class="text-lg text-bold">{% trans 'Fuel' %}</span>
+                            <div class="progress position-relative" style="height: 14px">
+                                <div class="progress-bar bg-gray-dark" role="progressbar" style="width: {{ fuel_percent }}%"></div>
+                                <small class="text-white justify-content-center d-flex position-absolute w-100" style="bottom: 6px;">{{ fuel_percent }}%</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow">
+                        <h5 class="card-header">{% trans 'Services' %}<span class="text-md"> - {{ data.theme }}</span>
+                        </h5>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover table-sm table-striped text-nowrap">
+                                <thead>
+                                <tr>
+                                    <th style="width: 80%;">{% trans 'Description' %}</th>
+                                    <th class="text-right" style="width: 20%;">{% trans 'Value' %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for label, status in data.market.services.items|dictsort:0 %}
+                                    <tr>
+                                        <td>{% trans label|camel2space %}</td>
+                                        <td class="text-right">
+                                            {% if status == "private" %}
+                                                {% trans 'Owner Only' %}
+                                                <i class="text-warning fas fa-exclamation-circle ml-1"></i>
+                                            {% elif status == "ok" %}
+                                                {% trans 'Available' %}
+                                                <i class="text-success fas fa-check-circle ml-1"></i>
+                                            {% else %}
+                                                {% trans 'Unavailable' %}
+                                                <i class="text-danger fas fa-times-circle ml-1"></i>
+                                            {% endif %}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer text-right text-sm">
+                            Updated {{ last_updated|timesince }} ago
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="info-box bg-info shadow">
+                        <span class="info-box-icon"><i class="fas fa-info-circle "></i></span>
+                        <div class="info-box-content">
+                            <span class="text-lg text-bold">{% trans 'Fleet Carrier State' %}</span>
+                            <span class="text-md">{{ data.state|camel2space }}</span>
+                        </div>
+                    </div>
+                    <div class="card shadow">
+                        <h5 class="card-header">{% trans 'Crews' %}</h5>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover table-sm table-striped text-nowrap">
+                                {#                                <thead>#}
+                                {#                                <tr>#}
+                                {#                                    <th style="width: 80%;">{% trans 'Description' %}</th>#}
+                                {#                                    <th class="text-right" style="width: 20%;">{% trans 'Value' %}</th>#}
+                                {#                                </tr>#}
+                                {#                                </thead>#}
+                                <tbody>
+                                {% for key, dataset in data.servicesCrew.items|dictsort:"1.crewMember.name" %}
+                                    <tr>
+                                        <td>{{ dataset.crewMember.name }}<br><span style="font-style: italic;">{% if dataset.crewMember.gender == "F" %}
+                                            {% trans 'Female' %}{% else %}
+                                            {% trans 'Male' %}{% endif %}
+                                            - {% trans dataset.crewMember.faction|capfirst %}</span>
+                                        </td>
+                                        <td class="text-right">
+                                            <span class="text-orange">{% trans key|camel2space %}</span>
+                                            {% if dataset.status == "ok" %}
+                                                <i class="text-success fas fa-check-circle ml-1">{% else %}
+                                                <i class="text-danger fas fa-times-circle ml-1">{% endif %}</i>
+                                            <br>${{ dataset.crewMember.salary|intcomma }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer text-right text-sm">
+                            Updated {{ last_updated|timesince }} ago
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        $(() => {
+            $('#sync_button').click(function (e) {
+                $('#sync_icon').addClass('fa-spin');
+            });
+            $('#swap_screen').click(function (e) {
+                console.log('clicked on swap screen');
+                if ($('#panel-1').is(':visible')) {
+                    $('#panel-1').fadeOut('fast');
+                    $('#swap_button').text("{% trans 'General Information' %}");
+                    $('#panel-2').fadeIn('fast');
+                } else {
+                    $('#panel-2').fadeOut('fast');
+                    $('#swap_button').text("{% trans 'Carrier Market' %}");
+                    $('#panel-1').fadeIn('fast');
+                }
+            })
+        })
+    </script>
+{% endblock %}

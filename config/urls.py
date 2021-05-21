@@ -39,6 +39,7 @@ urlpatterns = [
     path("placeholder/", placeholder, name="placeholder"),
     path("privacy_policy/", privacy_policy, name="privacy-policy"),
     path("commander/", include("edscc.commander.urls")),
+    path("squadron/", include("edscc.squadron.urls")),
     path("login_required/", login_required_alert, name="login-required"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
