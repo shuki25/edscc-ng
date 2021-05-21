@@ -5,7 +5,7 @@ from django.db.models import Count, Sum
 from django.utils.formats import number_format
 from django.utils.html import escape
 from django.utils.text import camel_case_to_spaces
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
 from .models import Crime, EarningHistory, FactionActivity, JournalLog
 
