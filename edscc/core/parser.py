@@ -231,9 +231,9 @@ class ParseJournalLog:
                 federation_id=self.rank_dict["federation"][data["Federation"]],
                 empire_id=self.rank_dict["empire"][data["Empire"]],
             )
-            if "Mercenary" in data:
+            if "Soldier" in data:
                 Commander.objects.filter(user_id=self.user_id).update(
-                    mercenary_id=self.rank_dict["mercenary"][data["Mercenary"]],
+                    mercenary_id=self.rank_dict["mercenary"][data["Soldier"]],
                     exobiologist_id=self.rank_dict["exobiologist"][
                         data["Exobiologist"]
                     ],
