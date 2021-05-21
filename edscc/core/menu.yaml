@@ -73,7 +73,7 @@ commander:
 squadron:
   1:
     header: "Squadron"
-    group: ["Squadron"]
+    group: ["Commander", "Squadron"]
   2:
     item: "Announcements"
     route: "show_announcements"
@@ -91,7 +91,7 @@ squadron:
   4:
     item: "Leaderboard"
     route: "leaderboard"
-    icon: "ed-asset ed-asset-icon-leaderboard_website margin-r-5"
+    icon: "ed-asset ed-asset-icon-leaderboard_website"
     group: ["Squadron"]
   #    5:
   #        item: "Squadron Activities"
@@ -102,6 +102,16 @@ squadron:
     icon: "fa fa-user-astronaut"
     group: ["Squadron"]
 
+  7:
+    item: "Join a Squadron"
+    route: "join_squadron"
+    icon: "fas fa-file-signature"
+    group: ["Unaffiliated"]
+  8:
+    item: "Create a Squadron"
+    route: "create_squadron"
+    icon: "ed-asset ed-asset-icon-squadrons"
+    group: [ "Unaffiliated" ]
 
   12:
     header: "Management"
