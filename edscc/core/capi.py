@@ -3,6 +3,7 @@ import logging
 import requests
 from allauth.socialaccount.models import SocialToken
 from django.conf import settings
+from django.contrib import messages
 
 from edscc.core.models import CapiLog
 
@@ -10,8 +11,9 @@ log = logging.getLogger(__name__)
 
 
 class Capi:
-    def __init__(self):
+    def __init__(self, request=None):
         self.is_beta = getattr(settings, "FDEV_BETA", False)
+        self.request = request
 
         if not self.is_beta:
             capi_api = "https://companion.orerve.net"
@@ -56,21 +58,26 @@ class Capi:
             else:
                 data = {}
         except requests.exceptions.Timeout as e:
-            status = {"Status": r.status_code, "Error": "%s" % e}
+            status = {"Status": "408", "Error": "%s" % repr(e)}
         except requests.exceptions.ConnectionError as e:
-            status = {"Status": r.status_code, "Error": "%s" % e}
+            status = {"Status": "504", "Error": "%s" % repr(e)}
         except requests.exceptions.HTTPError as e:
-            status = {"Status": r.status_code, "Error": "%s" % e}
+            status = {"Status": "500", "Error": "%s" % repr(e)}
         except requests.exceptions.RequestException as e:
-            status = {"Status": r.status_code, "Error": "%s" % e}
+            status = {"Status": "500", "Error": "%s" % repr(e)}
 
         if status["Status"] != "OK":
+            if self.request:
+                messages.error(
+                    self.request, "[%s]: %s" % (status["Status"], status["Error"])
+                )
             log.debug(status)
+            return status, {}
 
         capi_log = CapiLog(
             user_id=user,
             endpoint=url.rsplit("/", 1)[-1],
-            response_code=r.status_code,
+            response_code=status["Status"],
             data=data,
         )
         capi_log.save()
