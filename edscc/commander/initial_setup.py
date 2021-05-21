@@ -110,7 +110,7 @@ class StartSetup(SyncConsumer):
             )
             try:
                 user = User.objects.get(id=user_id)
-                initial_groups = ["General", "Commander"]
+                initial_groups = ["General", "Commander", "Unaffiliated"]
                 self.add_user_to_groups(user, initial_groups)
                 log.debug("Added user to groups: %s" % initial_groups)
             except Exception as e:
