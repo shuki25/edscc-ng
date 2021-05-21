@@ -163,13 +163,19 @@ def evaluate_journal_log(user_id, file_path):  # noqa C901
                             game_end = data["timestamp"]
                             if data["event"] == "Fileheader":
                                 is_journal_file = True
-                                if "beta" in data["gameversion"].lower():
+                                if (
+                                    "beta" in data["gameversion"].lower()
+                                    or "alpha" in data["gameversion"].lower()
+                                ):
                                     is_journal_file = False
                                     is_beta_file = True
                                     game_version = data["gameversion"]
                                 game_start = data["timestamp"]
                             if data["event"] == "LoadGame":
-                                if data["Commander"] == user_profile.commander_name:
+                                if (
+                                    data["Commander"].lower()
+                                    == user_profile.commander_name.lower()
+                                ):
                                     is_true_commander = True
                                 else:
                                     commander = data["Commander"]
@@ -188,7 +194,7 @@ def evaluate_journal_log(user_id, file_path):  # noqa C901
             if is_true_commander is False:
                 message = "%s [%s]" % (_("Wrong Commander"), commander)
             elif is_beta_file:
-                message = "%s: %s" % (_("Is a beta file"), game_version)
+                message = "%s: %s" % (_("Alpha/beta file"), game_version)
             else:
                 message = _("Not a Journal file")
             data = {
