@@ -505,13 +505,26 @@ class AjaxJournalLog(AjaxDatatableView):
         elif column == "file":
             return escape(str(row.file).rsplit("/", 1)[1])
         elif column == "rows_processed":
-            return escape(
-                number_format(row.rows_processed, use_l10n=True, force_grouping=True)
-            )
+            if row.rows_processed is not None:
+                return escape(
+                    number_format(
+                        row.rows_processed, use_l10n=True, force_grouping=True
+                    )
+                )
+            else:
+                return escape("-")
         elif column == "parser_time":
-            return escape(number_format(row.parser_time, decimal_pos=4, use_l10n=True))
+            if row.parser_time is not None:
+                return escape(
+                    number_format(row.parser_time, decimal_pos=4, use_l10n=True)
+                )
+            else:
+                return escape("-")
         elif column in ["game_start", "game_end"]:
-            return escape(getattr(row, column).strftime("%Y-%m-%d %H:%M:%S"))
+            if getattr(row, column):
+                return escape(getattr(row, column).strftime("%Y-%m-%d %H:%M:%S"))
+            else:
+                return escape("-")
         else:
             return super(AjaxJournalLog, self).render_column(row, column)
 
