@@ -11,11 +11,14 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from config import celery_app
 from edscc.core.utils import evaluate_journal_log
 
+from ..core.session_tracker import SessionTrackerManager
+from .ajax_datatables import activities_report_callable, activities_report_title
 from .forms import JournalLogForm
 from .models import Commander, CommanderInfo, UserProfile
-from .ajax_datatables import activities_report_title, activities_report_callable
+from .tasks import parse_journal_file
 
 log = logging.getLogger(__name__)
 
@@ -131,6 +134,15 @@ def game_journal_upload(request):
                 journal_file.game_start = rs["game_start"]
                 journal_file.game_end = rs["game_end"]
                 journal_file.save()
+                session = SessionTrackerManager(
+                    user=request.user,
+                    session_identifier="upload",
+                    initial_payload={"celery_task": False},
+                )
+                celery_task = session.get_attr("celery_task")
+                if celery_task is False:
+                    parse_journal_file.apply_async(args=[request.user.id], countdown=20)
+                    session.set_attr("celery_task", True)
             else:
                 data["is_valid"] = False
                 data["message"] = "%s: %s" % (_("Rejected"), _(rs["message"]))

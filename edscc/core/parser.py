@@ -150,12 +150,13 @@ class ParseJournalLog:
 
     @transaction.atomic
     def save_parser_log(self):
-        event_list = ParserLog.objects.filter(user_id=self.user_id)
+        event_list = ParserLog.objects.filter(user_id=self.user_id).distinct()
         parser_log = copy.deepcopy(self.parser_log)
         for row in event_list:
-            row.counter = parser_log[row.event]
-            del parser_log[row.event]
-            row.save()
+            if row.event in parser_log:
+                row.counter = parser_log[row.event]
+                del parser_log[row.event]
+                row.save()
         for key, value in parser_log.items():
             ParserLog(event=key, counter=value, user_id=self.user_id).save()
 
@@ -504,10 +505,13 @@ class ParseJournalLogFile(ParseJournalLog):
     def __init__(self, user):
         super().__init__(user)
 
-    def start(self):
-        queue = JournalLog.objects.filter(
-            progress_code="Q", user_id=self.user_id
-        ).order_by("game_start")
+    def start(self, num_logs_process=-1):
+        queue = (
+            JournalLog.objects.filter(progress_code="Q", user_id=self.user_id)
+            .exclude(game_start__isnull=True)
+            .order_by("game_start")
+        )
+        logs_processed = 0
         for log_obj in queue:
             tic = time.perf_counter()
             file_path = settings.MEDIA_ROOT + "/" + str(log_obj.file)
@@ -535,6 +539,16 @@ class ParseJournalLogFile(ParseJournalLog):
             log_obj.progress_code = "C"
             log_obj.progress_percent = 100
             log_obj.save()
+            time.sleep(0.55)
+            logs_processed += 1
+            if logs_processed >= num_logs_process:
+                count_remaining = (
+                    JournalLog.objects.filter(progress_code="Q", user_id=self.user_id)
+                    .exclude(game_start__isnull=True)
+                    .count()
+                )
+                return count_remaining
+        return 0
 
 
 def _rank_xref():
