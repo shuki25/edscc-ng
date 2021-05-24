@@ -1,3 +1,4 @@
+import copy
 import logging
 import os
 from hashlib import md5
@@ -10,7 +11,13 @@ log = logging.getLogger(__name__)
 
 
 class SessionTrackerManager:
-    def __init__(self, hash_key=None, user=None, session_identifier="journal"):
+    def __init__(
+        self,
+        hash_key=None,
+        user=None,
+        session_identifier="journal",
+        initial_payload=None,
+    ):
 
         self.session_obj = None
 
@@ -32,10 +39,13 @@ class SessionTrackerManager:
         try:
             self.session_obj = SessionTracker.objects.get(hash_key=self.hash_key)
         except SessionTracker.DoesNotExist:
-            payload = {
-                "station_name": None,
-                "station_faction": None,
-            }
+            if initial_payload is None:
+                payload = {
+                    "station_name": None,
+                    "station_faction": None,
+                }
+            else:
+                payload = copy.deepcopy(initial_payload)
             self.session_obj = SessionTracker(hash_key=self.hash_key, payload=payload)
             self.session_obj.save()
 
