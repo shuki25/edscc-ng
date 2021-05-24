@@ -40,7 +40,7 @@ class Capi:
         return self.capi_token
 
     def api_fetch(self, url, user):
-        status = {"Status": "OK"}
+        status = {"Status": "OK", "Error": None}
         data = {}
         r = object
         try:
@@ -66,7 +66,7 @@ class Capi:
         except requests.exceptions.RequestException as e:
             status = {"Status": "500", "Error": "%s" % repr(e)}
 
-        if status["Status"] != "OK":
+        if status["Status"] != 200:
             if self.request:
                 messages.error(
                     self.request, "[%s]: %s" % (status["Status"], status["Error"])
