@@ -11,10 +11,10 @@ from django.shortcuts import redirect, render, resolve_url
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
-from ..commander.models import Status
 from .capi import Capi
 from .models import CapiLog, Carousel, CommunityGoal, GalnetNews
 from .utils import update_galnet_news
+from ..commander.models import CommanderInfo, Status
 
 log = logging.getLogger(__name__)
 
@@ -94,6 +94,23 @@ def cmdr_fleet_carrier(request):
         funded_until = datetime.datetime.now() + datetime.timedelta(
             weeks=days_remaining
         )
+
+        info = CommanderInfo.objects.filter(user_id=request.user.id, event="Statistics")
+
+        tmp = {}
+        for value in info:
+            sort_list = sorted(value.content.items())
+            tmp[value.event.lower()] = dict(sort_list)
+
+        operation_statistics = {}
+
+        if "statistics" in tmp:
+            if "FLEETCARRIER" in tmp["statistics"]:
+                operation_statistics = tmp["statistics"]["FLEETCARRIER"]
+                operation_statistics_timestamp = parse_datetime(
+                    tmp["statistics"]["timestamp"]
+                )
+
         data = {
             "has_carrier_info": True,
             "data": fc_data,
@@ -104,6 +121,8 @@ def cmdr_fleet_carrier(request):
             "fuel_percent": (int(fc_data["fuel"]) / 1000) * 100,
             "last_updated": parse_datetime(str(capi_log.date_received)),
             "funded_until": funded_until,
+            "operation_statistics": operation_statistics,
+            "operation_statistics_timestamp": operation_statistics_timestamp,
         }
     else:
         data = {}
