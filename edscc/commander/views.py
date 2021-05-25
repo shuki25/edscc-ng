@@ -11,13 +11,11 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.translation import gettext as _
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from config import celery_app
-from edscc.core.utils import evaluate_journal_log
-
 from ..core.session_tracker import SessionTrackerManager
+from ..core.utils import evaluate_journal_log
 from .ajax_datatables import activities_report_callable, activities_report_title
 from .forms import JournalLogForm
-from .models import Commander, CommanderInfo, UserProfile
+from .models import CommanderInfo, UserProfile
 from .tasks import parse_journal_file
 
 log = logging.getLogger(__name__)
@@ -29,27 +27,20 @@ def index(request):
 
 @login_required
 def about_commander(request):
-    skill_web = {}
-
-    if request.user.is_authenticated:
-        try:
-            c = Commander.objects.get(user_id=request.user.id)
-            skill_web = c.get_skill_web()
-        except Commander.DoesNotExist:
-            log.debug("Commander profile not found.")
-
+    tags_ignored = ["FLEETCARRIER", "timestamp", "event"]
     info = CommanderInfo.objects.filter(user_id=request.user.id)
-
-    data = {
-        "skill_web": skill_web,
-        "tags_ignored": ["FLEETCARRIER", "timestamp", "event"],
-    }
+    data = {}
 
     for value in info:
         sort_list = sorted(value.content.items())
         data[value.event.lower()] = dict(sort_list)
 
-    return render(request, "commander/commander_profile.html", context=data)
+    if "statistics" in data:
+        for tag in tags_ignored:
+            data["statistics"].pop(tag, None)
+        data["num_categories_column"] = int(len(data["statistics"]) / 3)
+
+    return render(request, "commander/commander_profile2.html", context=data)
 
 
 @login_required
@@ -72,7 +63,6 @@ def initial_setup(request):
 @ensure_csrf_cookie
 @login_required
 def activities_report(request, report=None):
-
     if report in activities_report_callable:
         log.debug("is executing activities report callable")
         callable_class = activities_report_callable[report]

@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load i18n gravatar account humanize formatting %}
+{% block content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card card-orange card-outline shadow">
+                                <div class="card-body pt-1" style="height: 216px">
+                                    <div class="text-center">
+                                        <img class="profile-user-img img-responsive img-circle mb-3 mt-3"
+                                             src="{{ user.email|default:""|gravatar_url }}"
+                                             alt="User profile picture">
+                                    </div>
+                                    <h3 class="profile-username text-center"><i
+                                            class="ed-asset ed-asset-icon-squadron-rank-{{ app.user.customRank.orderId|add:'5' }}"></i>
+                                        {% trans 'CMDR' %} {{ user_profile.commander_name }}</h3>
+                                    <p class="text-muted text-center">
+                                        Overlord{{ user.customRank.name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-9 p-0">
+                            <div class="row m-0">
+                                <div class="col-md-4">
+                                    <div class="info-box bg-warning shadow">
+                                        <span class="info-box-icon"><i class="fas fa-fist-raised "></i></span>
+                                        <div class="info-box-content">
+                                            <span class="text-lg text-bold">{% trans 'Combat' %}</span>
+                                            <span class="info-box-text">{{ commander.combat.name }}</span>
+                                            <div class="progress position-relative" style="height: 14px">
+                                                <div class="progress-bar bg-gray-dark" role="progressbar"
+                                                     style="width: {{ commander.combat_progress }}%"></div>
+                                                <small class="text-white justify-content-center d-flex position-absolute w-100"
+                                                       style="bottom: 7px;">{{ commander.combat_progress }}%</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-box bg-primary shadow">
+                                        <span class="info-box-icon"><i class="fas fa-space-shuttle"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="text-lg text-bold">{% trans 'Exploration' %}</span>
+                                            <span class="info-box-text">{{ commander.explore.name }}</span>
+                                            <div class="progress position-relative" style="height: 14px">
+                                                <div class="progress-bar bg-gray-dark" role="progressbar"
+                                                     style="width: {{ commander.explore_progress }}%"></div>
+                                                <small class="text-white justify-content-center d-flex position-absolute w-100"
+                                                       style="bottom: 7px;">{{ commander.explore_progress }}%</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-box bg-secondary shadow">
+                                        <span class="info-box-icon"><i
+                                                class="fas fa-hand-holding-usd"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="text-lg text-bold">{% trans 'Trade' %}</span>
+                                            <span class="info-box-text">{{ commander.trade.name }}</span>
+                                            <div class="progress position-relative" style="height: 14px">
+                                                <div class="progress-bar bg-gray-dark" role="progressbar"
+                                                     style="width: {{ commander.trade_progress }}%"></div>
+                                                <small class="text-white justify-content-center d-flex position-absolute w-100"
+                                                       style="bottom: 7px;">{{ commander.trade_progress }}%</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row m-0">
+                                <div class="col-md-4">
+                                    <div class="info-box bg-danger shadow">
+                                        <span class="info-box-icon"><i class="fas fa-crosshairs"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="text-lg text-bold">{% trans 'Mercenary' %}</span>
+                                            <span class="info-box-text">{{ commander.mercenary.name }}</span>
+                                            <div class="progress position-relative" style="height: 14px">
+                                                <div class="progress-bar bg-gray-dark" role="progressbar"
+                                                     style="width: {{ commander.mercenary_progress }}%"></div>
+                                                <small class="text-white justify-content-center d-flex position-absolute w-100"
+                                                       style="bottom: 7px;">{{ commander.mercenary_progress }}%</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-box bg-success shadow">
+                                        <span class="info-box-icon"><i class="fas fa-seedling"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="text-lg text-bold">{% trans 'Exobiologist' %}</span>
+                                            <span class="info-box-text">{{ commander.exobiologist.name }}</span>
+                                            <div class="progress position-relative" style="height: 14px">
+                                                <div class="progress-bar bg-gray-dark" role="progressbar"
+                                                     style="width: {{ commander.mercenary_progress }}%"></div>
+                                                <small class="text-white justify-content-center d-flex position-absolute w-100"
+                                                       style="bottom: 7px;">{{ commander.exobiologist_progress }}%</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-box bg-info shadow">
+                                        <span class="info-box-icon"><i class="fas fa-fighter-jet"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="text-lg text-bold">{% trans 'CQC' %}</span>
+                                            <span class="info-box-text">{{ commander.cqc.name }}</span>
+                                            <div class="progress position-relative" style="height: 14px">
+                                                <div class="progress-bar bg-gray-dark" role="progressbar"
+                                                     style="width: {{ commander.cqc_progress }}%"></div>
+                                                <small class="text-white justify-content-center d-flex position-absolute w-100"
+                                                       style="bottom: 7px;">{{ commander.cqc_progress }}%</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        {% for category, data in statistics.items|dictsort:0 %}
+                            {% if forloop.counter0|divisibleby:num_categories_column %}
+                                {% if forloop.counter0 %}</div>{% endif %}
+                                <div class="col-md-4">
+                            {% endif %}
+                            <div class="card shadow">
+                                <h5 class="card-header">{% trans category|to_space %}</h5>
+                                <div class="card-body table-responsive p-0">
+                                    <table class="table table-hover table-sm table-striped text-nowrap">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 80%;">{% trans 'Description' %}</th>
+                                            <th class="text-right" style="width: 20%;">{% trans 'Value' %}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for label, value in data.items %}
+                                            <tr>
+                                                <td>{% trans label|to_space %}</td>
+                                                <td class="text-right">{{ value|intcomma }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}
