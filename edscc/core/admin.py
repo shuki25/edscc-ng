@@ -13,7 +13,7 @@ admin.site.unregister(User)
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     readonly_fields = [
-        'date_joined',
+        "date_joined",
     ]
 
     def get_form(self, request, obj=None, **kwargs):
@@ -23,17 +23,17 @@ class CustomUserAdmin(UserAdmin):
 
         if not is_superuser:
             disabled_fields |= {
-                'username',
-                'is_superuser',
-                'user_permissions',
+                "username",
+                "is_superuser",
+                "user_permissions",
             }
 
         if not is_superuser and obj is not None and obj == request.user:
             disabled_fields |= {
-                'is_staff',
-                'is_superuser',
-                'groups',
-                'user_permissions',
+                "is_staff",
+                "is_superuser",
+                "groups",
+                "user_permissions",
             }
 
         for f in disabled_fields:
@@ -59,8 +59,11 @@ class CommunityGoalAdmin(admin.ModelAdmin):
 
 
 class GalnetNewsAdmin(admin.ModelAdmin):
-    list_display = ("title", "ed_date", "slug", "date_added")
-    change_list_template = "%s%s" % (settings.APPS_DIR, '/templates/admin/galnet_change_list.html')
+    list_display = ("lang_code", "title", "galnet_date", "slug", "created_at")
+    change_list_template = "%s%s" % (
+        settings.APPS_DIR,
+        "/templates/admin/galnet_change_list.html",
+    )
 
 
 admin.site.register(Motd, MotdAdmin)

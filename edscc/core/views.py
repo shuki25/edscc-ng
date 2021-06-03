@@ -50,8 +50,12 @@ def home_page(request):
 
 def galnet_news(request):
     data = {
-        "carousel": GalnetNews.objects.all().order_by("-nid")[:4],
-        "galnet_news": GalnetNews.objects.all().order_by("-nid")[4:10],
+        "carousel": GalnetNews.objects.filter(lang_code=request.LANGUAGE_CODE).order_by(
+            "-nid"
+        )[:4],
+        "galnet_news": GalnetNews.objects.filter(
+            lang_code=request.LANGUAGE_CODE
+        ).order_by("-nid")[4:10],
         "galnet_img_url": settings.GALNET_IMAGE_URL,
     }
     data["num_cards"] = len(data["galnet_news"])

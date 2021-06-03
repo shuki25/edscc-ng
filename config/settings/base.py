@@ -379,7 +379,7 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 # ------------------------------------------------------------------------------
 FDEV_BETA = False
 USER_AGENT = "EDSCC-v2.0-alpha"
-GALNET_FEED_URL = "https://elitedangerous-website-backend-production.elitedangerous.com/api/galnet?_format=json"
+GALNET_FEED_URL = "https://cms.zaonce.net/{lang_code}/jsonapi/node/galnet_article/"
 GALNET_IMAGE_URL = "https://hosting.zaonce.net/elite-dangerous/galnet/"
 EDDB_URL = "https://eddb.io/archive/v6/"
 

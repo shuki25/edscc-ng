@@ -22,7 +22,7 @@
                     {% endif %}
                     <div class="card card-outline card-orange shadow">
                         <h5 class="card-header text-orange">
-                            {{ item.title }}<br><span class="text-sm">{{ item.ed_date }}</span>
+                            {{ item.title }}<br><span class="text-sm">{{ item.galnet_date }}</span>
                         </h5>
                         <div class="card-body">
                             <p class="card-text">
@@ -31,7 +31,7 @@
                             <span><a href="{% url 'galnet-detail' item.slug %}">{% trans 'Read More' %}</a></span>
                         </div>
                         <div class="card-footer text-sm text-orange text-right">
-                            {{ item.ed_date }}
+                            {{ item.galnet_date }}
                         </div>
                     </div>
                     {% endfor %}

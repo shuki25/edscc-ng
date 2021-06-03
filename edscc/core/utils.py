@@ -3,6 +3,7 @@ import json
 import logging
 import os.path
 from collections import defaultdict
+from urllib.parse import parse_qs, urlparse
 
 import filetype
 import requests
@@ -17,6 +18,15 @@ from edscc.core.models import GalnetNews
 
 log = logging.getLogger(__name__)
 BUF_SIZE = 64 * 1024  # read in 64k chunks
+
+AVAILABLE_LANGUAGE = {
+    "en": "en-GB",
+    "fr": "fr-FR",
+    "de": "de-DE",
+    "pt": "pt-BR",
+    "ru": "ru-RU",
+    "es": "es-ES",
+}
 
 
 class BulkCreateManager(object):
@@ -64,64 +74,112 @@ def fetch_eddb_data(endpoint):
     endpoint_url = f"{eddb_url}{endpoint}"
     headers = {"Accept-Encoding": "gzip, deflate, sdch"}
     download_path = f"{settings.MEDIA_ROOT}/eddb/{endpoint}"
-    r = None
-    data = {}
     try:
         r = requests.get(endpoint_url, headers=headers)
         r.raise_for_status()
         status = {"Status": r.status_code}
-        open(download_path, "wb").write(r.content)
+        if r.status_code == 200:
+            open(download_path, "wb").write(r.content)
     except requests.exceptions.Timeout as e:
-        status = {"Status": r.status_code, "Error": "%s" % e}
+        status = {"Status": "408", "Error": "%s" % repr(e)}
     except requests.exceptions.ConnectionError as e:
-        status = {"Status": r.status_code, "Error": "%s" % e}
+        status = {"Status": "504", "Error": "%s" % repr(e)}
     except requests.exceptions.HTTPError as e:
-        status = {"Status": r.status_code, "Error": "%s" % e}
+        status = {"Status": "500", "Error": "%s" % repr(e)}
     except requests.exceptions.RequestException as e:
-        status = {"Status": r.status_code, "Error": "%s" % e}
+        status = {"Status": "500", "Error": "%s" % repr(e)}
+    if status["Status"] != 200:
+        log.debug(status)
     return status, download_path
 
 
-def fetch_galnet_news_feed():
-    galnet_feed_url = getattr(settings, "GALNET_FEED_URL")
-    r = None
+def fetch_galnet_news_feed(offset=0, limit=50, lang_code="en-GB"):
+    galnet_feed_url_template = getattr(settings, "GALNET_FEED_URL")
+    galnet_feed_url = galnet_feed_url_template.format(lang_code=lang_code)
     data = {}
     try:
-        r = requests.get(galnet_feed_url, params={"_format": "json"})
+        r = requests.get(
+            galnet_feed_url,
+            params={
+                "page[offset]": offset,
+                "page[limit]": limit,
+                "sort": "-published_at",
+            },
+        )
         r.raise_for_status()
         status = {"Status": r.status_code}
-        data = r.json()
+        if r.status_code == 200:
+            data = r.json()
+        else:
+            data = {}
     except requests.exceptions.Timeout as e:
-        status = {"Status": r.status_code, "Error": "%s" % e}
+        status = {"Status": "408", "Error": "%s" % repr(e)}
     except requests.exceptions.ConnectionError as e:
-        status = {"Status": r.status_code, "Error": "%s" % e}
+        status = {"Status": "504", "Error": "%s" % repr(e)}
     except requests.exceptions.HTTPError as e:
-        status = {"Status": r.status_code, "Error": "%s" % e}
+        status = {"Status": "500", "Error": "%s" % repr(e)}
     except requests.exceptions.RequestException as e:
-        status = {"Status": r.status_code, "Error": "%s" % e}
+        status = {"Status": "500", "Error": "%s" % repr(e)}
+    if status["Status"] != 200:
+        log.debug(status)
     return data, status
 
 
 def update_galnet_news(request):
-    (data, status) = fetch_galnet_news_feed()
     new_counter = 0
-    if status["Status"] != 200:
-        messages.error(request, _("Sync Failed: Unable to sync with Galnet Feed"))
-        return
-    qs = GalnetNews.objects.values_list("nid", flat=True)
-    article_list = [i for i in qs]
-    for article in data:
-        if int(article["nid"]) not in article_list:
-            a = GalnetNews(
-                title=article["title"],
-                body=md(article["body"]),
-                nid=article["nid"],
-                ed_date=article["date"],
-                image=article["image"],
-                slug=article["slug"],
+
+    for lang_code, lang_country_code in AVAILABLE_LANGUAGE.items():
+        is_done = False
+        offset = 0
+        limit = 100
+        while is_done is False:
+            (data, status) = fetch_galnet_news_feed(
+                offset=offset, limit=limit, lang_code=lang_country_code
             )
-            a.save()
-            new_counter += 1
+            if status["Status"] != 200:
+                messages.error(
+                    request, _("Sync Failed: Unable to sync with Galnet Feed")
+                )
+                messages.error(
+                    request, "[%s]: %s" % (status["Status"], status["Error"])
+                )
+                break
+            try:
+                content_lang_code = data["data"][0]["attributes"]["langcode"]
+                log.debug(
+                    f"Request language [{lang_code}], content language [{content_lang_code}]"
+                )
+            except Exception as e:
+                log.debug(f"Error: {e}")
+                content_lang_code = "en"
+            qs = GalnetNews.objects.filter(lang_code=content_lang_code).values_list(
+                "nid", flat=True
+            )
+            article_list = [i for i in qs]
+            for row in data["data"]:
+                if "attributes" in row:
+                    article = row["attributes"]
+                    if int(article["drupal_internal__nid"]) not in article_list:
+                        a = GalnetNews(
+                            title=article["title"],
+                            body=md(article["body"]["processed"]),
+                            lang_code=article["langcode"],
+                            nid=article["drupal_internal__nid"],
+                            galnet_date=article["field_galnet_date"],
+                            image=article["field_galnet_image"],
+                            slug=article["field_slug"],
+                            created_at=article["created"],
+                        )
+                        a.save()
+                        new_counter += 1
+            if "next" in data["links"]:
+                qs = urlparse(data["links"]["next"]["href"])
+                o = parse_qs(qs.query)
+                log.debug(o)
+                offset = o["page[offset]"][0]
+                limit = o["page[limit]"][0]
+            else:
+                is_done = True
     if new_counter > 1:
         messages.info(request, _("Sync completed: %d new articles added" % new_counter))
     elif new_counter:

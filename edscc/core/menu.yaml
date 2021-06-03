@@ -11,7 +11,7 @@ general:
     routes: ["galnet-detail"]
     icon: "fas fa-rss-square"
     counter: True
-    counter_sql: "select count(id) as counter from galnet_news where ed_date like '%3307'"
+    counter_sql: "select count(id) as counter from galnet_news where galnet_date like '%3307'"
     counter_title: "Number of Unread Articles"
     counter_color: bg-green
     group: ["General"]
