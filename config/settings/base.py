@@ -331,7 +331,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 # ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 # ACCOUNT_ADAPTER = "edscc.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
@@ -382,6 +382,9 @@ USER_AGENT = "EDSCC-v2.0-alpha"
 GALNET_FEED_URL = "https://cms.zaonce.net/{lang_code}/jsonapi/node/galnet_article/"
 GALNET_IMAGE_URL = "https://hosting.zaonce.net/elite-dangerous/galnet/"
 EDDB_URL = "https://eddb.io/archive/v6/"
+CAPI_URL = "https://companion.orerve.net/"
+CAPI_BETA_URL = "https://pts-companion.orerve.net/"
+API_URL = "https://api.orerve.net/2.0/website/"
 
 SOCIALACCOUNT_PROVIDERS = {
     "frontier": {"SCOPE": ["auth", "capi"], "VERIFIED_EMAIL": True},
@@ -412,7 +415,7 @@ JAZZMIN_UI_TWEAKS = {
     "brand_small_text": False,
     "brand_colour": False,
     "accent": "accent-info",
-    "navbar": "navbar-dark",
+    "navbar": "navbar-white navbar-light",
     "no_navbar_border": False,
     "navbar_fixed": False,
     "layout_boxed": False,
@@ -425,11 +428,11 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": True,
-    "theme": "solar",
-    "dark_mode_theme": None,
+    "theme": "cosmo",
+    "dark_mode_theme": "darkly",
     "button_classes": {
-        "primary": "btn-primary",
-        "secondary": "btn-secondary",
+        "primary": "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
         "info": "btn-outline-info",
         "warning": "btn-outline-warning",
         "danger": "btn-outline-danger",
