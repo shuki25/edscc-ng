@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load i18n gravatar account humanize static %}
+{% block css %}
+    {{ block.super }}
+    {#    <link rel="stylesheet" href="{% static 'ajax_datatable/css/style.css' %}">#}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-secondary">
+                    <div class="card-header">
+                        <span class="h5">
+                            <i class="fas fa-user-astronaut mr-1"></i>
+                            {% trans 'Squadron Roster' %}
+                        </span>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="table-responsive">
+                            <table id="datatable" class="table table-sm table-dark table-striped table-hover table-condensed nowrap" style="width: 100%"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'ajax_datatable/js/utils.js' %}"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(() => {
+            AjaxDatatableViewUtils.initialize_table(
+                $('#datatable'),
+                "{% url 'squadron:roster_datatable' %}",
+                {
+                    processing: true,
+                    serverSide: true,
+                    autoWidth: false,
+                    scrollX: false,
+                    dom: "<'row'<'col-sm-3'i>>" +
+                        "<'row'<'col-sm-12'tr>>" +
+                        "<'row'<'col-sm-3'l><'col-sm-9'p>>",
+                    language: {
+                        search: '_INPUT_',
+                        searchPlaceholder: '{% trans "Search..." %}',
+                        info: "{% trans "datatable_info" %}",
+                        infoEmpty: "{% trans "datatable_info_empty" %}",
+                        infoFiltered: "{% trans "datatable_info_filtered" %}",
+                        zeroRecords: "{% trans "datatable_zero_records" %}",
+                        emptyTable: "{% trans "datatable_empty_table" %}",
+                        paginate: {
+                            first: '&laquo;',
+                            previous: '&lsaquo;',
+                            next: '&rsaquo;',
+                            last: '&raquo;'
+                        }
+                    },
+                    initComplete: function () {
+                        $('.dataTables_filter input[type="search"]').css({
+                            width: '200px', display: 'inline-block'
+                        });
+                    },
+                    drawCallback: function () {
+                        $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                    }
+                }, {
+                    uuid: '{{ squadron_info.uuid }}',
+                },
+            );
+        });
+    </script>
+{% endblock %}
