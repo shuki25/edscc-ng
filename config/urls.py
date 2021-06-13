@@ -16,6 +16,8 @@ from edscc.core.views import (
     sync_galnet_news,
     install_setup,
 )
+from edscc.commander import urls as commander_urls
+from edscc.squadron import urls as squadron_urls
 
 urlpatterns = [
     path(
@@ -38,8 +40,8 @@ urlpatterns = [
     path("discord/", placeholder, name="discord"),
     path("placeholder/", placeholder, name="placeholder"),
     path("privacy_policy/", privacy_policy, name="privacy-policy"),
-    path("commander/", include("edscc.commander.urls")),
-    path("squadron/", include("edscc.squadron.urls")),
+    path("commander/", include(commander_urls, namespace="commander")),
+    path("squadron/", include(squadron_urls, namespace="squadron")),
     path("login_required/", login_required_alert, name="login-required"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

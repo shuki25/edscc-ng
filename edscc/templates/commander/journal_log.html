@@ -79,7 +79,7 @@
                                                   style="font-size: 2rem;"></span>
                                             <h4>{% trans 'Drop Player Journal Log Files Here to Upload' %}</h4>
                                             {% csrf_token %}
-                                            <input id="fileupload" type="file" name="file" multiple style="display: none;" data-url="{% url 'game_journal_upload' %}" data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+                                            <input id="fileupload" type="file" name="file" multiple style="display: none;" data-url="{% url 'commander:game_journal_upload' %}" data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
                                             <button type="button" class="btn btn-success js-upload-files mt-3 mr-2">
                                                 <span class="fas fa-plus pr-2"></span> {% trans 'Add Journal Files' %}
                                             </button>
@@ -166,7 +166,7 @@
         $(() => {
             AjaxDatatableViewUtils.initialize_table(
                 $('#journal-log'),
-                "{% url 'ajax_journal_log' %}",
+                "{% url 'commander:ajax_journal_log' %}",
                 {
                     processing: true,
                     serverSide: true,

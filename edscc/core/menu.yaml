@@ -37,7 +37,7 @@ commander:
     group: ["Commander"]
   2:
     item: "Information Sheet"
-    route: "profile"
+    route: "commander:profile"
     icon: "fas fa-info"
     group: ["Commander"]
   3:
@@ -52,17 +52,17 @@ commander:
     group: ["Commander"]
   5:
     item: "Fleet Carrier"
-    route: "fleet_carrier"
+    route: "commander:fleet_carrier"
     icon: "fas fa-fighter-jet"
     group: ["Fleet Carrier Owner"]
   6:
     item: "Activities Report"
-    route: "activities_report"
+    route: "commander:activities_report"
     icon: "fa fa-chart-line"
     group: ["Commander"]
   7:
     item: "Game Journal Log"
-    route: "game_journal"
+    route: "commander:game_journal"
     icon: "fas fa-cloud-upload-alt"
     alert: True
     alert_sql: "select count(is_staff) as alert from auth_user where id=:user_id"
@@ -98,18 +98,18 @@ squadron:
   #        icon: "fa fa-line-chart"
   6:
     item: "Roster"
-    route: "app_members"
+    route: "squadron:roster"
     icon: "fa fa-user-astronaut"
     group: ["Squadron"]
 
   7:
-    item: "Join a Squadron"
-    route: "join_squadron"
-    icon: "fas fa-file-signature"
+    item: "Link to a Squadron"
+    route: "squadron:link_squadron"
+    icon: "fas fa-link"
     group: ["Unaffiliated"]
   8:
-    item: "Create a Squadron"
-    route: "create_squadron"
+    item: "Setup a Squadron"
+    route: "squadron:setup_squadron"
     icon: "ed-asset ed-asset-icon-squadrons"
     group: [ "Unaffiliated" ]
 
@@ -147,7 +147,7 @@ admin:
     group: ["Squadron Owner"]
   2:
     item: "Squadron Settings"
-    route: "admin_squadron_settings"
+    route: "squadron:settings"
     icon: "fa fa-tools"
     star: True
     roles: [ "ROLE_ADMIN" ]

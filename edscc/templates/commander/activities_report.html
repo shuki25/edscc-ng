@@ -19,7 +19,7 @@
                         </span>
                         <div class="float-right">
                             <div class="p-0 m-0">
-                                <form class="input-group-sm" method="post" href="{% url 'activities_report' %}">
+                                <form class="input-group-sm" method="post" href="{% url 'commander:activities_report' %}">
                                     <fieldset>
                                         <label class="mr-1">{% trans 'Select Report' %}:</label>
                                         <select id="report-picker" class="form-control text-sm" name="selected-report"
@@ -54,7 +54,7 @@
         $(() => {
             AjaxDatatableViewUtils.initialize_table(
                 $('#activities-report'),
-                "{% url 'ajax_activities_report' report_name %}",
+                "{% url 'commander:ajax_activities_report' report_name %}",
                 {
                     processing: true,
                     serverSide: true,

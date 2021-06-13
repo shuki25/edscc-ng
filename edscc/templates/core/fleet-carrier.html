@@ -19,7 +19,7 @@
                         Arrived since {{ arrived_since|timesince }}
                     </div>
                     <div class="fc-footer-right">
-                        <a id="sync_button" href="{% url 'sync_fleet_carrier' %}" class="btn btn-outline-success float-right mr-2 mb-1"><i id="sync_icon" class="fas fa-sync-alt mr-1"></i> {% trans 'Sync with Frontier' %}
+                        <a id="sync_button" href="{% url 'commander:sync_fleet_carrier' %}" class="btn btn-outline-success float-right mr-2 mb-1"><i id="sync_icon" class="fas fa-sync-alt mr-1"></i> {% trans 'Sync with Frontier' %}
                         </a>
                         {% if has_carrier_info %}
                             <a id="swap_screen" href="#" class="btn btn-outline-success float-right mr-2 mb-1">
@@ -42,7 +42,7 @@
                                 <span class="text-md">{{ data.balance|intcomma }}</span>
                             </div>
                         </div>
-                        <div class="card shadow">
+                        <div class="card card-secondary shadow">
                             <h5 class="card-header">{% trans 'Current Finances' %}</h5>
                             <div class="card-body table-responsive p-0">
                                 <table class="table table-hover table-sm table-striped text-nowrap">
@@ -76,7 +76,7 @@
                                 <span class="text-md">{{ funded_until|timeuntil }}</span>
                             </div>
                         </div>
-                        <div class="card shadow">
+                        <div class="card card-secondary shadow">
                             <h5 class="card-header">{% trans 'Market Finances' %}</h5>
                             <div class="card-body table-responsive p-0">
                                 <table class="table table-hover table-sm table-striped text-nowrap">
@@ -100,7 +100,7 @@
                                 Updated {{ last_updated|timesince }} ago
                             </div>
                         </div>
-                        <div class="card shadow">
+                        <div class="card card-secondary shadow">
                             <h5 class="card-header">{% trans 'Blackmarket Finances' %}</h5>
                             <div class="card-body table-responsive p-0">
                                 <table class="table table-hover table-sm table-striped text-nowrap">
@@ -136,7 +136,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card shadow">
+                        <div class="card card-secondary shadow">
                             <h5 class="card-header">{% trans 'Services' %}<span class="text-md"> - {{ data.theme }}</span></h5>
                             <div class="card-body table-responsive p-0">
                                 <table class="table table-hover table-sm table-striped text-nowrap">
@@ -179,7 +179,7 @@
                                 <span class="text-md">{{ data.state|camel2space }}</span>
                             </div>
                         </div>
-                        <div class="card shadow">
+                        <div class="card card-secondary shadow">
                             <h5 class="card-header">{% trans 'Crews' %}</h5>
                             <div class="card-body table-responsive p-0">
                                 <table class="table table-hover table-sm table-striped text-nowrap">
@@ -212,7 +212,7 @@
                                 Updated {{ last_updated|timesince }} ago
                             </div>
                         </div>
-                        <div class="card shadow">
+                        <div class="card card-secondary shadow">
                             <h5 class="card-header">{% trans 'Operation Statistics' %}</h5>
                             <div class="card-body table-responsive p-0">
                                 <table class="table table-hover table-sm table-striped text-nowrap">
@@ -242,7 +242,7 @@
             <div id="panel-2" style="display: none;">
                 <div class="row mt-3">
                     <div class="col-md-3">
-                        <div class="card shadow">
+                        <div class="card card-secondary shadow">
                             <h5 class="card-header">{% trans 'Carrier Capacity' %}</h5>
                             <div class="card-body table-responsive p-0">
                                 <table class="table table-hover table-sm table-striped text-nowrap">
@@ -268,7 +268,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card shadow">
+                        <div class="card card-secondary shadow">
                             <h5 class="card-header">{% trans 'Prohibited Commodities' %}</h5>
                             <div class="card-body table-responsive p-0">
                                 <table class="table table-hover table-sm table-striped text-nowrap">
@@ -292,7 +292,7 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="card shadow">
+                        <div class="card card-secondary shadow">
                             <h5 class="card-header">{% trans 'Market Status' %}</h5>
                             <div class="card-body table-responsive p-0">
                                 <table class="table table-hover table-sm table-striped text-nowrap">

@@ -26,10 +26,12 @@ from .views import (
 )
 from .ajax_datatables import AjaxJournalLog
 
+app_name = "commander"
+
 urlpatterns = [
     path("profile/", about_commander, name="profile"),
-    path("fleet_carrier", cmdr_fleet_carrier, name="fleet_carrier"),
-    path("sync_fleet_carrier", sync_fleet_carrier, name="sync_fleet_carrier"),
+    path("fleet_carrier/", cmdr_fleet_carrier, name="fleet_carrier"),
+    path("sync_fleet_carrier/", sync_fleet_carrier, name="sync_fleet_carrier"),
     path("initial_setup/", initial_setup, name="initial_setup"),
     path("game_journal/", game_journal, name="game_journal"),
     path("game_journal/upload/", game_journal_upload, name="game_journal_upload"),
