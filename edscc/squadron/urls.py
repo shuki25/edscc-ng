@@ -19,10 +19,25 @@ from edscc.core.views import placeholder, cmdr_fleet_carrier, sync_fleet_carrier
 
 from .views import (
     join_squadron,
-    create_squadron,
+    setup_squadron,
+    finish_activate_squadron,
+    settings,
+    roster,
 )
+
+from .ajax_datatables import AjaxMemberRoster
+
+app_name = "squadron"
 
 urlpatterns = [
     path("join_squadron/", join_squadron, name="join_squadron"),
-    path("create_squadron/", create_squadron, name="create_squadron"),
+    path("setup_squadron/", setup_squadron, name="setup_squadron"),
+    path(
+        "finish_activate_squadron/",
+        finish_activate_squadron,
+        name="finish_activate_squadron",
+    ),
+    path("settings/", settings, name="settings"),
+    path("roster/", roster, name="roster"),
+    path("datatable/roster/", AjaxMemberRoster.as_view(), name="roster_datatable"),
 ]

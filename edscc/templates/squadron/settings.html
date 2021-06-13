@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load i18n static humanize markdownify formatting crispy_forms_tags %}
+{% block content %}
+    <div class="container-fluid pl-3 pr-3">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="card card-secondary shadow">
+                        <div class="card-header">
+                            <h3 class="card-title text-lg pt-1">{{ squadron.name }}
+                                <span class="text-sm text-muted">{{ squadron.tag }}</span></h3>
+                            <div class="card-tools float-right m-1">
+                                <div class="text-success text-md p-0 m-0">
+                                    <i class="fas fa-desktop mr-2"></i>PC
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body table-responsive overflow-hidden">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-4 pl-2">
+                                        {% if logo %}
+                                            <img class="profile-squadron-img" src="{% get_static_prefix %}img/ed-assets/thumbnails/{{ logo }}" alt="Faction Power Logo">
+                                        {% else %}
+                                            <div style="height: 120px" class="text-center">
+                                                <i class="fas fa-question fa-7x text-secondary"></i></div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-8">
+                                        <span class="text-orange"><i class="fas fa-tag mr-2"></i>Tags</span>
+                                        <p class="text-muted">
+                                            {% for tag in squadron.squadron_tags.all %}
+                                                <span class="badge badge-pill {{ tag.badge_color }}">{{ tag.name }}</span>
+                                            {% endfor %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mt-3">
+                                        <span class="text-orange"><i class="fas fa-info-circle mr-2"></i>Information</span>
+                                        <table class="table table-sm table-borderless text-nowrap">
+                                            <tbody>
+                                            <tr>
+                                                <td style="width: 50%">{% trans 'Owner' %}</td>
+                                                <td style="width: 50%">{{ owner.user.name|default:"Not on ED:SCC" }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% trans 'Administrator' %}</td>
+                                                <td>{% trans 'CMDR' %} {{ admin.commander_name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% trans 'Number of Members' %}</td>
+                                                <td>{{ num_members|intcomma }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% trans 'Superpower' %}</td>
+                                                <td>{% trans squadron.superpower.name|default:"None" %}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% trans 'Power' %}</td>
+                                                <td>{% trans squadron.power.name|default:"None" %}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% trans 'Faction' %}</td>
+                                                <td>{{ squadron.faction.name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% trans 'Primary Language' %}</td>
+                                                <td>{% trans squadron.get_primary_language_display %}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% trans 'Accepting New Members' %}</td>
+                                                <td>{% if squadron.accept_new_members %}{% trans 'Yes' %}{% else %}
+                                                    {% trans 'No' %}{% endif %}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% trans 'Approval Required' %}</td>
+                                                <td>{% if squadron.require_approval %}{% trans 'Yes' %}{% else %}
+                                                    {% trans 'No' %}{% endif %}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>{% trans 'Established on' %}</td>
+                                                <td>{{ squadron.established_on|date:"DATETIME_FORMAT" }}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-xs text-muted">
+                            <sup>&dagger;</sup> Above settings only can be changed in the game.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8" style="overflow: hidden;">
+                <div class="card card-secondary">
+                    <div class="card-header">
+                        <h3 class="card-title text-lg pt-1">
+                            <i class="fas fa-cogs mr-2"></i>{% trans 'Additional Information' %}</h3>
+                        <div class="card-tools">
+                            <button id="finish_setup" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-save mr-2"></i>{% trans 'Save Changes' %}
+                            </button>
+                        </div>
+                        <!-- /.card-tools -->
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        {% crispy squadron_form squadron_form.helper %}
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        $(() => {
+            $('#finish_setup').click(function (e) {
+                $('#squadron_form').submit();
+            });
+        });
+    </script>
+{% endblock %}

@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.timezone import now
 
-from ..squadron.models import CustomRank, MinorFaction, Rank, Squadron
+from ..squadron.models import CustomRank, MinorFaction, Rank, Squadron, SquadronRoster
 
 
 # Create your models here.make
@@ -138,6 +138,13 @@ class Commander(models.Model):
             ),
         }
         return skill_web
+
+    def get_squadron_id(self):
+        try:
+            member = SquadronRoster.objects.get(member_id=self.player_id)
+            return member.squadron_id
+        except SquadronRoster.DoesNotExist:
+            return None
 
 
 class CrimeType(models.Model):

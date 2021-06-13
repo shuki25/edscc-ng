@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load i18n static humanize markdownify formatting %}
+{% block content %}
+    <div class="container-fluid pl-3 pr-3">
+        <div class="row">
+            <div class="col-md-12" style="overflow: hidden;">
+                <div>
+                    <img src="{% static 'img/squadron_header.png' %}" style=" width: 100%; object-fit: contain;" alt="Squadron">
+                    <div class="fc-name">
+                        <span class="text-orange h3 text-bold">{% trans 'Set up an Existing Squadron' %}</span><br>
+                        <span class="text-white text-sm">{% trans 'Import and activate a current Squadron from Frontier into ED:SCC' %}</span>
+                    </div>
+                    <div class="fc-access text-right">
+                    </div>
+                    <div class="fc-footer-left p-2" style="background-color: rgba(0,0,0,0.6);">
+                        {% trans 'You must be a current member of the Squadron to set up a Squadron group account' %}
+                    </div>
+                    <div class="fc-footer-right">
+                        <form id="search" method="post" action="{% url 'squadron:setup_squadron' %}">
+                            <div style="display: flex">
+                                <div class="btn-group-sm btn-group-toggle float-left p-0 m-0" data-toggle="buttons">
+                                    <label class="btn btn-outline-success">
+                                        <input type="radio" name="platform" value="PC"
+                                                {% if platform == "PC" %} checked{% endif %}><i class="fas fa-desktop pr-2"></i>PC
+                                    </label>
+                                    <label class="btn btn-outline-success">
+                                        <input type="radio" name="platform" value="PS4"
+                                                {% if platform == "PS4" %} checked{% endif %}><i class="fab fa-playstation pr-2"></i>PS4
+                                    </label>
+                                    <label class="btn btn-outline-success">
+                                        <input type="radio" name="platform" value="XBOX"
+                                                {% if platform == "XBOX" %} checked{% endif %}><i class="fab fa-xbox pr-2"></i>XBox
+                                    </label>
+                                </div>
+                                <div class="ml-2 float-right">
+                                    <div class="input-group input-group-sm">
+                                        {% csrf_token %}
+                                        <input name="keyword" type="text" class="form-control" placeholder="Search" value="{{ keyword }}">
+                                        <span class="input-group-append">
+                                <button id="search_submit" type="button" class="btn btn-outline-success"><i id="search_icon" class="fas fa-search"></i></button>
+                            </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-3">
+                {% trans 'Number of Squadrons Returned' %}: {{ totalResults|intcomma }}
+            </div>
+            <div class="col-md-9">
+                <nav aria-label="Pagination">
+                    <ul class="pagination justify-content-end pagination-sm">
+                        {% if pagination.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{{ pagination.previous_page }}"><span aria-hidden="true">&laquo;</span></a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><span aria-hidden="true">&laquo;</span></a>
+                            </li>
+                        {% endif %}
+                        {% for page in pagination.pagination_list %}
+                            {% if page.num != '...' %}
+                                {% if page.is_current %}
+                                    <li class="page-item active" aria-current="page">
+                                        {% else %}
+                                    <li class="page-item">
+                                {% endif %}
+
+                            <a class="page-link" href="?{{ page.params }}">{{ page.num }}</a></li>
+                            {% else %}
+                                <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if pagination.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{{ pagination.next_page }}"><span aria-hidden="true">&raquo;</span></a>
+                            </li>
+                        {% else %}
+                            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><span aria-hidden="true">&raquo;</span></a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            {% for squadron in squadrons %}
+                {% if forloop.counter0|divisibleby:num_squadrons_column %}
+                    {% if forloop.counter0 %}</div>{% endif %}
+                    <div class="col-md-4">
+                {% endif %}
+                <div class="card card-secondary shadow">
+                    <div class="card-header">
+                        <h3 class="card-title text-lg pt-1">{{ squadron.name }}
+                            <span class="text-sm text-muted">{{ squadron.tag }}</span></h3>
+                        <div class="card-tools m-0">
+                            {% if squadron.active %}
+                                <button type="button" class="btn btn-sm btn-success disabled m-0">
+                                    <i class="fas fa-check mr-1"></i> {% trans 'Active' %}</button>
+                            {% else %}
+                                <button type="button" class="btn btn-sm btn-outline-success m-0" data-squadron-id="{{ squadron.id }}" data-squadron-tag="{{ squadron.tag }}">
+                                    <i class="fas fa-bolt mr-1"></i> Activate
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body table-responsive overflow-hidden">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-4 pl-2">
+                                    {% if squadron.logo %}
+                                        <img class="profile-squadron-img" src="{% get_static_prefix %}img/ed-assets/thumbnails/{{ squadron.logo }}">
+                                    {% else %}
+                                        <div style="height: 120px" class="text-center">
+                                            <i class="fas fa-question fa-7x text-secondary"></i></div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-8">
+                                    <span class="text-orange"><i class="fas fa-tag mr-2"></i>Tags</span>
+                                    <p class="text-muted">
+                                        {% for tag in squadron.userTags %}
+                                            {{ tag|squadron_tag_badge }}
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mt-3">
+                                    <span class="text-orange"><i class="fas fa-info-circle mr-2"></i>Information</span>
+                                    <table class="table table-sm table-borderless text-nowrap">
+                                        <tbody>
+                                        <tr>
+                                            <td width="50%">{% trans 'Number of Members' %}</td>
+                                            <td width="50%">{{ squadron.memberCount|intcomma }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>{% trans 'Superpower' %}</td>
+                                            <td>{{ squadron.superpowerName }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>{% trans 'Power' %}</td>
+                                            <td>{{ squadron.powerName|default:"None" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>{% trans 'Faction' %}</td>
+                                            <td>{{ squadron.factionName }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>{% trans 'Accepting New Members' %}</td>
+                                            <td>{% if squadron.acceptingNewMembers %}{% trans 'Yes' %}{% else %}
+                                                {% trans 'No' %}{% endif %}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>{% trans 'Established on' %}</td>
+                                            <td>{{ squadron.created|convert_str_date|date:"DATETIME_FORMAT" }}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+    </div>
+    </div>
+    <div id="activation-progress" class="progress-box">
+        <div class="content">
+            <!-- Commander box -->
+            <div class="card card-orange shadow">
+                <div class="card-header text-center">
+                    <h1 class="h2"><i class="nav-icon fas fa-bolt"></i>
+                        &nbsp;{% trans 'Activating Squadron' %}
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="overlay-wrapper">
+                        <div class="text-center mt-3 mb-3">
+                            <div><i class="fas fa-3x fa-sync-alt fa-spin"></i>
+                                <div class="text-bold pt-2">{% trans 'Setting up' %}...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress" style="height: 2px;">
+                    <div id="progress_bar" class="progress-bar bg-orange" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer text-sm" id="status_bar">
+                    {% trans 'Status' %}: {% trans 'Initializing' %}...
+                </div>
+                <!-- /.card-footer-->
+            </div>
+            <!-- /.card -->
+        </div>
+    </div>
+    <form id="finish_activate_squadron" action="{% url 'squadron:finish_activate_squadron' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" id="squadron_id" name="squadron_id" value="">
+        <input type="hidden" id="squadron_tag" name="squadron_tag" value="">
+        <input type="hidden" name="offset" value="{{ offset }}">
+        <input type="hidden" name="limit" value="{{ limit }}">
+        <input type="hidden" name="keyword" value="{{ keyword }}">
+        <input type="hidden" name="platform" value="{{ platform }}">
+        <input type="hidden" id="activation_status" name="status" value="">
+        <input type="hidden" id="activation_message" name="message" value="">
+    </form>
+{% endblock %}
+{% block js %}
+    <script>
+        $(() => {
+            $(window).resize(function (event) {
+                $('#activation-progress').position({
+                    my: 'center',
+                    at: 'center',
+                    of: window,
+                    collision: 'fit'
+                });
+            });
+            $('#search_submit').click(function (e) {
+                $('#search_icon').removeClass('fa-search').addClass('fa-sync fa-spin');
+                $('#search').submit();
+            });
+            $('input[name=platform]:radio').change(function (e) {
+                $('#search').submit();
+            });
+            $(':button').click(function (e) {
+                let id = $(this).data('squadron-id');
+                let tag = $(this).data('squadron-tag');
+                if (id && tag) {
+                    console.log('squadron-id: ' + id + ' tag: ' + tag);
+                    $('#squadron_id').val(id);
+                    $('#squadron_tag').val(tag)
+                    $('#activation-progress').position({
+                        my: 'center',
+                        at: 'center',
+                        of: window,
+                        collision: 'fit'
+                    });
+                    $('#modal-background').toggleClass('active');
+                    $('#activation-progress').fadeIn('fast');
+                    activate_squadron(id, tag);
+                }
+            });
+        });
+
+        function activate_squadron(id, tag) {
+            const path = 'wss://' + window.location.host + '/ws/squadron/activate_squadron/';
+            const statusSocket = new WebSocket(path);
+
+            statusSocket.onmessage = function (e) {
+                const data = JSON.parse(e.data);
+                console.log(data)
+                $('#progress_bar').attr('aria-valuenow', data.progress_value);
+                $('#progress_bar').attr('style', 'width:' + data.progress_value + '%;');
+                if (data.server_code.Status !== '200') {
+                    console.log("received error")
+                    $('#status_bar').html(data.message);
+                    $('#activation_status').val(data.server_code.Status);
+                    $('#activation_message').val(data.message);
+                    setTimeout(() => {
+                        this.close();
+                        $('#finish_activate_squadron').submit();
+                    }, 2500);
+                } else if (data.message === 'DONE') {
+                    console.log("in here");
+                    setTimeout(() => {
+                        this.close();
+                        console.log("redirecting...")
+                        $('#activation_status').val(200);
+                        $('#finish_activate_squadron').submit();
+                    }, 1500);
+                } else {
+                    console.log("fallback")
+                    $('#status_bar').html(data.message);
+                }
+            }
+
+            statusSocket.onclose = function (e) {
+                console.log(e.data);
+                console.log('disconnected');
+                // alert('unexpected disconnect');
+                // $(location).attr('href', '/');
+            }
+
+            statusSocket.onopen = function (e) {
+                console.log('opening websocket')
+                console.log('sending message')
+                statusSocket.send(JSON.stringify({
+                    'message': 'start-setup',
+                    'squadron_id': id,
+                    'squadron_tag': tag,
+                    'user_id': "{{ user.id }}",
+                }));
+            }
+        }
+    </script>
+{% endblock %}
