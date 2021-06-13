@@ -56,7 +56,6 @@ def build_menu(user):  # noqa C901
                             menu_items[attr] = value
                         if attr in ["counter_sql", "alert_sql"]:
                             if ":user_id" in value:
-                                log.debug("sql: %s" % value)
                                 replace_tag = {":user_id": user.id}
                                 rs = sql_query_with_user(value, replace_tag)
                             else:

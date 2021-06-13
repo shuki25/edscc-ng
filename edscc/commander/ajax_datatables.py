@@ -116,7 +116,7 @@ class AjaxEarningHistorySummary(AjaxDatatableView):
 
     def render_column(self, row, column):
         if column in ["num_events", "total_reward", "total_crew_wage"]:
-            log.debug(row, column)
+            # log.debug(row, column)
             return escape(
                 number_format(row[column], use_l10n=True, force_grouping=True)
             )
@@ -178,7 +178,7 @@ class AjaxEarningHistorySummaryMinorFaction(AjaxDatatableView):
 
     def render_column(self, row, column):
         if column in ["num_events", "total_reward", "total_crew_wage"]:
-            log.debug(row, column)
+            # log.debug(row, column)
             return escape(
                 number_format(row[column], use_l10n=True, force_grouping=True)
             )
@@ -243,7 +243,7 @@ class AjaxMinorFactionActivitiesSummary(AjaxDatatableView):
 
     def render_column(self, row, column):
         if column in ["num_events", "total_reward"]:
-            log.debug(row, column)
+            # log.debug(row, column)
             return escape(
                 number_format(row[column], use_l10n=True, force_grouping=True)
             )
@@ -305,7 +305,7 @@ class AjaxCrimeHistory(AjaxDatatableView):
 
     def render_column(self, row, column):
         if column in ["fine", "bounty"]:
-            log.debug(row, column)
+            # log.debug(row, column)
             return escape(
                 number_format(getattr(row, column), use_l10n=True, force_grouping=True)
             )
@@ -366,7 +366,7 @@ class AjaxCrimeHistorySummary(AjaxDatatableView):
 
     def render_column(self, row, column):
         if column in ["total_fine", "total_bounty"]:
-            log.debug(row, column)
+            # log.debug(row, column)
             return escape(
                 number_format(row[column], use_l10n=True, force_grouping=True)
             )
@@ -434,7 +434,7 @@ class AjaxCrimeHistorySummaryFaction(AjaxDatatableView):
 
     def render_column(self, row, column):
         if column in ["total_fine", "total_bounty"]:
-            log.debug(row, column)
+            # log.debug(row, column)
             return escape(
                 number_format(row[column], use_l10n=True, force_grouping=True)
             )
