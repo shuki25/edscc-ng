@@ -69,6 +69,39 @@ $red: #b94a48;
     color: #E0DFDE;
 }
 
+.profile-squadron-img {
+  margin: 0 auto;
+  width: 120px;
+  resize: horizontal;
+  padding: 5px;
+}
+
+.progress-box {
+    position: absolute;
+    z-index: 5001;
+    display: none;
+    width: 600px;
+}
+
+#modal-background {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    opacity: .30;
+    -webkit-opacity: .3;
+    -moz-opacity: .3;
+    filter: alpha(opacity=30);
+    z-index: 5000;
+}
+
+#modal-background.active {
+  display: block;
+}
+
 .input-group-sm > .form-control, .input-group-sm > .input-group-addon, .input-group-sm > .input-group-btn > .btn {
     height: 28px;
     padding: 5px 10px;

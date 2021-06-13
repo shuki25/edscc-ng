@@ -43,6 +43,7 @@
 <body class="hold-transition dark-mode sidebar-mini text-sm">
 <div class="wrapper">
     <!-- Navbar -->
+    <div id="modal-background"></div>
     <nav class="main-header navbar navbar-expand navbar-dark">
         <!-- Left navbar links -->
         <ul class="navbar-nav">
@@ -271,10 +272,10 @@
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         <h1 class="m-0">
-                            <span class="text-orange"> <i class="ed-asset ed-asset-lg ed-asset-icon-squadrons"></i></span>
-                            {% if user_profile.squadron is not None %}
-                                {% trans 'Squadron' %}: {% trans user_profile.squadron.name|default:"No Affiliation" %}
-                                <small>{{ app.user.squadron.idcode|default:"NONE" }}</small>
+                            <span class="text-orange"> <i class="ed-asset ed-asset-lg ed-asset-icon-squadrons mr-1"></i></span>
+                            {% if squadron_info is not None %}
+                                {% trans 'Squadron' %}: {% trans squadron_info.name|default:"No Affiliation" %}
+                                <span class="text-sm text-muted">{{ squadron_info.tag|default:"NONE" }}</span>
                             {% else %}
                                 {% trans 'Elite Dangerous: Squadron Command Center' %}
                             {% endif %}
