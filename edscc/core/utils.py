@@ -3,7 +3,8 @@ import json
 import logging
 import os.path
 from collections import defaultdict
-from urllib.parse import parse_qs, urlparse
+from datetime import datetime
+from urllib.parse import parse_qs, urlencode, urlparse
 
 import filetype
 import requests
@@ -12,6 +13,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from markdownify import markdownify as md
+from pytz import utc
 
 from edscc.commander.models import JournalLog, UserProfile
 from edscc.core.models import GalnetNews
@@ -293,3 +295,160 @@ def evaluate_journal_log(user_id, file_path):  # noqa C901
     data["file_type"] = file_type
 
     return data
+
+
+def to_snake_case(text):
+    text = text.title().replace(" ", "")
+    return "".join(["_" + i.lower() if i.isupper() else i for i in text]).lstrip("_")
+
+
+def hex2text(text):
+    return bytes.fromhex(text).decode("utf-8")
+
+
+def timezone_aware(text):
+    date_format = "%Y-%m-%d %H:%M:%S"
+    return utc.localize(datetime.strptime(text, date_format))
+
+
+class Paginator:
+    def __init__(self, **kwargs):
+        exclude_list = ["offset", "limit", "count", "width"]
+        self.offset = int(kwargs["offset"] if "offset" in kwargs else 0)
+        self.limit = int(kwargs["limit"] if "limit" in kwargs else 25)
+        self.count = int(kwargs["count"] if "count" in kwargs else 0)
+        self.width = int(kwargs["width"] if "width" in kwargs else 7)
+        self.kwargs = {}
+
+        for key, value in kwargs.items():
+            if key not in exclude_list:
+                self.kwargs[key] = value
+
+    def has_previous(self):
+        return self.offset - self.limit >= 0
+
+    def has_next(self):
+        return self.offset + self.limit < self.count
+
+    def is_current_page(self, page_num):
+        return self.current_page() == page_num
+
+    def num_pages(self):
+        return round((self.count / self.limit) + 0.5)
+
+    def current_page(self):
+        return int(self.offset / self.limit) + 1
+
+    def calculate_offset(self, page_num):
+        return (page_num - 1) * self.limit
+
+    def num_items(self, page_num):
+        if page_num < self.num_pages():
+            return self.limit
+        else:
+            offset = self.calculate_offset(self.num_pages())
+            return self.count - offset
+
+    def urlencode(self, params, include_list):
+        filtered_params = {}
+        for i in include_list:
+            if i in params:
+                filtered_params[i] = params[i]
+        return urlencode(filtered_params)
+
+    def add_kwargs(self, original, extra_data):
+        for key, value in extra_data.items():
+            if value:
+                original[key] = value
+        return original
+
+    def next_page(self):
+        page = self.current_page() + 1
+        item = {
+            "offset": self.calculate_offset(page),
+            "limit": self.limit,
+        }
+        item = self.add_kwargs(item, self.kwargs)
+        return urlencode(item)
+
+    def previous_page(self):
+        page = self.current_page() - 1
+        item = {
+            "offset": self.calculate_offset(page),
+            "limit": self.limit,
+        }
+        item = self.add_kwargs(item, self.kwargs)
+        return urlencode(item)
+
+    def pagination_list(self):
+        pagination = []
+        include_list = ["keyword", "platform", "offset", "limit"]
+        cur_page = self.current_page()
+        num_pages = self.num_pages()
+        half_width = int(self.width / 2)
+        print(
+            "cur_page=%s, num_pages=%s, half_width=%s"
+            % (cur_page, num_pages, half_width)
+        )
+        if num_pages < self.width or cur_page < self.width:
+            print("In block 1")
+            max_pages = num_pages if num_pages <= self.width else self.width
+            for i in range(1, max_pages + 1):
+                item = {
+                    "num": i,
+                    "offset": self.calculate_offset(i),
+                    "limit": self.limit,
+                    "is_current": self.is_current_page(i),
+                }
+                item = self.add_kwargs(item, self.kwargs)
+                item["params"] = self.urlencode(item, include_list)
+                pagination.append(item)
+            if num_pages > self.width:
+                item = {"num": "..."}
+                pagination.append(item)
+                item = {
+                    "num": num_pages,
+                    "offset": self.calculate_offset(num_pages),
+                    "limit": self.limit,
+                    "is_current": False,
+                }
+                item = self.add_kwargs(item, self.kwargs)
+                item["params"] = self.urlencode(item, include_list)
+                pagination.append(item)
+        else:
+            print("In block 2")
+            start_page = self.current_page() - half_width
+            end_page = self.current_page() + half_width
+            if end_page > num_pages:
+                end_page = num_pages
+            print("start_page=%s, end_page=%s" % (start_page, end_page))
+            item = {"num": 1, "offset": 0, "limit": self.limit, "is_current": False}
+            item = self.add_kwargs(item, self.kwargs)
+            item["params"] = self.urlencode(item, include_list)
+            pagination.append(item)
+            item = {"num": "..."}
+            pagination.append(item)
+            for i in range(start_page, end_page + 1):
+                item = {
+                    "num": i,
+                    "offset": self.calculate_offset(i),
+                    "limit": self.limit,
+                    "is_current": self.is_current_page(i),
+                }
+                item = self.add_kwargs(item, self.kwargs)
+                item["params"] = self.urlencode(item, include_list)
+                pagination.append(item)
+            if end_page < num_pages != cur_page:
+                item = {"num": "..."}
+                pagination.append(item)
+                item = {
+                    "num": num_pages,
+                    "offset": self.calculate_offset(num_pages),
+                    "limit": self.limit,
+                    "is_current": False,
+                }
+                item = self.add_kwargs(item, self.kwargs)
+                item["params"] = self.urlencode(item, include_list)
+                pagination.append(item)
+
+        return pagination
