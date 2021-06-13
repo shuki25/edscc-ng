@@ -216,7 +216,7 @@ class GalnetNews(models.Model):
     title = models.CharField(max_length=100)
     body = models.TextField()
     nid = models.IntegerField()
-    lang_code = models.CharField(max_length=2)
+    lang_code = models.CharField(max_length=5)
     galnet_date = models.CharField(max_length=15)
     image = models.CharField(max_length=100, null=True)
     slug = models.CharField(max_length=100)
