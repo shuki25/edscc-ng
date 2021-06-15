@@ -225,7 +225,7 @@ def settings(request):
             squadron = None
 
     if squadron is not None:
-        members = SquadronRoster.objects.filter(squadron_id=squadron.id)
+        num_members = SquadronRoster.objects.filter(squadron_id=squadron.id).count()
         try:
             owner_commander = Commander.objects.get(player_id=squadron.owner_id)
             owner = UserProfile.objects.get(id=owner_commander.id)
@@ -245,8 +245,7 @@ def settings(request):
 
     context = {
         "squadron": squadron,
-        "members": members,
-        "num_members": len(members),
+        "num_members": num_members,
         "owner": owner,
         "admin": admin,
         "logo": logo,
