@@ -2,6 +2,8 @@ import logging
 
 from django.db import connection
 
+from edscc.core.decorators import cached
+
 log = logging.Logger(__name__)
 
 
@@ -15,15 +17,17 @@ def dict_fetch_all(cursor):
     return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
+@cached(name="sql_query")
 def sql_query(sql):
     rs = {}
     with connection.cursor() as c:
         c.execute(sql)
         rs = dict_fetch_all(c)
-        log.debug(rs)
+        log.debug("in sql_query: %s" % rs)
     return rs
 
 
+@cached(name="sql_query_with_user")
 def sql_query_with_user(sql, replace_tags):
     rs = {}
     with connection.cursor() as c:
@@ -31,5 +35,5 @@ def sql_query_with_user(sql, replace_tags):
             sql = sql.replace(tag, "%s" % value)
         c.execute(sql)
         rs = dict_fetch_all(c)
-        log.debug(rs)
+        log.debug("in sql_query: %s" % rs)
     return rs

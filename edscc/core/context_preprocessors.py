@@ -2,11 +2,13 @@ import logging
 
 from edscc.commander.models import Commander, UserProfile
 from edscc.core.menu import build_menu
+from edscc.core.decorators import cached
 from edscc.squadron.models import Squadron
 
 log = logging.getLogger(__name__)
 
 
+@cached(request=True, name="commander_context")
 def commander_context(request):
     context_data = dict()
     squadron = None
@@ -23,7 +25,7 @@ def commander_context(request):
             }
         except Exception as e:
             log.debug(e)
-
+    log.debug("context_data: %s" % context_data)
     return context_data
 
 
