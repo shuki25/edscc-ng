@@ -45,6 +45,7 @@ class ActivityCounter(models.Model):
     black_market = models.IntegerField(default=0)
     cg_participated = models.IntegerField(default=0)
     crimes_committed = models.IntegerField(default=0)
+    donations = models.IntegerField(default=0)
 
     class Meta:
         managed = True
@@ -290,7 +291,7 @@ class EarningHistory(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
     squadron = models.ForeignKey(Squadron, models.CASCADE, null=True)
     earning_type = models.ForeignKey("core.EarningType", models.CASCADE)
-    earned_on = models.DateField()
+    earned_on = models.DateField(db_index=True)
     reward = models.IntegerField()
     crew_wage = models.IntegerField()
     minor_faction = models.ForeignKey(

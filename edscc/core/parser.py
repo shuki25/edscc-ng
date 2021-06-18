@@ -100,6 +100,7 @@ class ParseJournalLog:
             "CommitCrime": self.commit_crime,
             "Docked": self.docked,
             "EngineerProgress": self.commander_info,
+            "FactionKillBond": self.faction_kill_bond,
             "MarketBuy": self.market_buy,
             "MarketSell": self.market_sell,
             "Materials": self.commander_info,
@@ -111,7 +112,7 @@ class ParseJournalLog:
             "RedeemVoucher": self.redeem_voucher,
             "Reputation": self.commander_info,
             "SAAScanComplete": self.saa_scan_complete,
-            "SellExplorationData": self.to_do,
+            "SellExplorationData": self.sell_exploration_data,
             "Shutdown": self.undocked,
             "Statistics": self.commander_info,
             "Undocked": self.undocked,
@@ -317,6 +318,37 @@ class ParseJournalLog:
             )
 
     @transaction.atomic
+    def faction_kill_bond(self, data):
+        reward = data["TotalReward"] if "TotalReward" in data else data["Reward"]
+        minor_faction = (
+            self.get_localized_string(data, "AwardingFaction")
+            if "AwardingFaction" in data
+            else ""
+        )
+        target_faction = (
+            self.get_localized_string(data, "VictimFaction")
+            if "VictimFaction" in data
+            else ""
+        )
+        minor_faction_obj = self.find_minor_faction(minor_faction)
+        EarningHistory(
+            user_id=self.user_id,
+            earned_on=parse_datetime(data["timestamp"]),
+            reward=reward,
+            crew_wage=0,
+            earning_type_id=self.earning_type[data["event"].lower()],
+            minor_faction=minor_faction_obj,
+        ).save()
+        self.activity_counter.add_by_attr("bounties_claimed", 1)
+        self.add_minor_faction(
+            data["event"].lower(),
+            parse_datetime(data["timestamp"]).strftime("%Y-%m-%d"),
+            reward,
+            minor_faction,
+            target_faction,
+        )
+
+    @transaction.atomic
     def redeem_voucher(self, data):
         earning_type = data["Type"].lower()
         if "Factions" in data:
@@ -363,6 +395,32 @@ class ParseJournalLog:
             user_id=self.user_id,
             earned_on=parse_datetime(data["timestamp"]),
             reward=data["TotalEarnings"],
+            crew_wage=crew_wage,
+            earning_type_id=self.earning_type["explorationdata"],
+            minor_faction=minor_faction_obj,
+            notes=station_name,
+        ).save()
+        self.activity_counter.add_by_attr("bodies_found", num_bodies)
+        self.activity_counter.add_by_attr("systems_scanned", num_systems)
+
+    @transaction.atomic
+    def sell_exploration_data(self, data):
+        num_systems = len(data["Systems"])
+        num_bodies = len(data["Discovered"])
+        minor_faction_obj = self.find_minor_faction(
+            self.session.get_attr("station_faction")
+        )
+        station_name = self.session.get_attr("station_name")
+        if "TotalEarnings" in data:
+            reward = data["TotalEarnings"]
+            crew_wage = data["BaseValue"] + data["Bonus"] - data["TotalEarnings"]
+        else:
+            reward = data["BaseValue"] + data["Bonus"]
+            crew_wage = 0
+        EarningHistory(
+            user_id=self.user_id,
+            earned_on=parse_datetime(data["timestamp"]),
+            reward=reward,
             crew_wage=crew_wage,
             earning_type_id=self.earning_type["explorationdata"],
             minor_faction=minor_faction_obj,
@@ -441,7 +499,70 @@ class ParseJournalLog:
 
     @transaction.atomic
     def mission_completed(self, data):
-        name = self.get_localized_string(data, "Name") if "Name" in data else ""
+        old_name = self.get_localized_string(data, "Name") if "Name" in data else ""
+        pieces = old_name.split("_")
+        name = "_".join(pieces[0:2])
+        notes = ""
+
+        if name.lower() in self.earning_type:
+            earning_type_id = self.earning_type[name.lower()]
+        else:
+            earning_type_id = self.earning_type["missioncompleted"]
+            notes = name
+            name = "missioncompleted"
+
+        log.debug("old_name=%s, name=%s, notes=%s" % (old_name, name, notes))
+
+        minor_faction = (
+            self.get_localized_string(data, "Faction") if "Faction" in data else ""
+        )
+        target_faction = (
+            self.get_localized_string(data, "TargetFaction")
+            if "TargetFaction" in data
+            else ""
+        )
+
+        minor_faction_obj = self.find_minor_faction(
+            self.get_localized_string(data, "Faction") if "Faction" in data else ""
+        )
+
+        if "Reward" in data:
+            EarningHistory(
+                user_id=self.user_id,
+                earned_on=parse_datetime(data["timestamp"]),
+                reward=data["Reward"],
+                crew_wage=0,
+                earning_type_id=earning_type_id,
+                minor_faction=minor_faction_obj,
+                notes=notes,
+            ).save()
+            self.add_minor_faction(
+                name,
+                parse_datetime(data["timestamp"]).strftime("%Y-%m-%d"),
+                data["Reward"],
+                minor_faction,
+                target_faction,
+            )
+            self.activity_counter.add_by_attr("missions_completed", 1)
+        elif "Donation" in data or "Donated" in data:
+            donation = data["Donated"] if "Donated" in data else data["Donation"]
+            EarningHistory(
+                user_id=self.user_id,
+                earned_on=parse_datetime(data["timestamp"]),
+                reward=int(donation) * -1,
+                crew_wage=0,
+                earning_type_id=earning_type_id,
+                minor_faction=minor_faction_obj,
+                notes=notes,
+            ).save()
+            self.add_minor_faction(
+                name,
+                parse_datetime(data["timestamp"]).strftime("%Y-%m-%d"),
+                int(donation) * -1,
+                minor_faction,
+                target_faction,
+            )
+            self.activity_counter.add_by_attr("donations", 1)
 
     @transaction.atomic
     def commit_crime(self, data):
@@ -491,10 +612,22 @@ class ParseJournalLog:
     ):
         minor_faction_obj = self.find_minor_faction(minor_faction)
         target_faction_obj = self.find_minor_faction(target_faction)
+        log.debug(
+            "minor_faction=%s, target_minor_faction=%s, earning_type=%s, earning_type_id=%s, earned_on=%s, reward=%s, user_id=%s"
+            % (
+                minor_faction_obj,
+                target_faction_obj,
+                earning_type,
+                self.earning_type[earning_type.lower()],
+                earned_on,
+                reward,
+                self.user_id,
+            )
+        )
         FactionActivity(
             minor_faction=minor_faction_obj,
             target_minor_faction=target_faction_obj,
-            earning_type_id=self.earning_type[earning_type],
+            earning_type_id=self.earning_type[earning_type.lower()],
             earned_on=earned_on,
             reward=reward,
             user_id=self.user_id,
