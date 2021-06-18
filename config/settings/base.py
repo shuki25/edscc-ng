@@ -93,6 +93,7 @@ THIRD_PARTY_APPS = [
     "markdownify",
     "channels",
     "ajax_datatable",
+    "chartjs",
 ]
 
 LOCAL_APPS = [
@@ -288,7 +289,8 @@ LOGGING = {
         },
         "simple": {"format": "%(levelname)s %(message)s"},
         "timestampthread": {
-            "format": "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s] [%(name)-20.20s]  %(message)s",
+            # "format": "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s] [%(name)-20.20s]  %(message)s",
+            "format": "%(asctime)s [%(levelname)-5.5s] [%(name)-30.30s]  %(message)s",
         },
     },
     "handlers": {

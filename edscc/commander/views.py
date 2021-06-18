@@ -5,15 +5,17 @@ import traceback
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponseNotFound, JsonResponse
 from django.shortcuts import redirect, render, resolve_url
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import gettext as _
+from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from ..core.session_tracker import SessionTrackerManager
 from ..core.utils import evaluate_journal_log
 from .ajax_datatables import activities_report_callable, activities_report_title
+from .chart_views import DashboardReports
 from .forms import JournalLogForm
 from .models import CommanderInfo, UserProfile
 from .tasks import parse_journal_file
@@ -147,3 +149,27 @@ def game_journal_upload(request):
         else:
             data = {"is_valid": False, "message": _("Problems with the upload")}
     return JsonResponse(data)
+
+
+@login_required
+def dashboard(request):
+    data = {"reports": DashboardReports().all_reports()}
+    return render(request, "commander/dashboard.html", context=data)
+
+
+@login_required
+@cache_page(300)
+def chart_js_generator(request, *args, **kwargs):
+    reports = DashboardReports()
+
+    if "report_id" in kwargs:
+        rs = reports.get_report(kwargs["report_id"])
+        if not rs:
+            return HttpResponseNotFound(kwargs["report_id"])
+    else:
+        return HttpResponseBadRequest
+
+    log.debug("context=%s" % rs)
+    return render(
+        request, "core/chart_tpl.js", context=rs, content_type="text/javascript"
+    )

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load i18n gravatar account humanize static %}
+{% get_current_language as LANGUAGE_CODE %}
+{% block css %}
+    {{ block.super }}
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        {% for key, row in reports.items %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <h5 class="card-header">
+                        <i class="{{ row.icon }} mr-2"></i>{% trans row.title %}
+                    </h5>
+                    <div class="card-body">
+                        <canvas id="{{ row.chart_id }}" style="height: 30vh; width: 100%"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}
+{% block js %}
+    {{ block.super }}
+    <!--[if lte IE 8]>
+            <script src="{% static 'js/excanvas.js' %}"></script>
+    <![endif]-->
+    <script type="text/javascript" src="{% static 'js/Chart.min.js' %}"></script>
+    {% for key, row in reports.items %}
+        <script type="text/javascript" src="{% url "commander:chart_js_generator" key %}"></script>
+    {% endfor %}
+{% endblock %}

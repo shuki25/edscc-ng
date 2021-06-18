@@ -42,7 +42,7 @@ commander:
     group: ["Commander"]
   3:
     item: "Dashboard"
-    route: "player_dashboard"
+    route: "commander:dashboard"
     icon: "fa fa-chart-area"
     group: ["Commander"]
   4:

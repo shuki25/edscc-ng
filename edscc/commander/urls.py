@@ -19,27 +19,39 @@ from edscc.core.views import placeholder, cmdr_fleet_carrier, sync_fleet_carrier
 
 from .views import (
     about_commander,
+    dashboard,
     game_journal,
     game_journal_upload,
     initial_setup,
     activities_report,
+    chart_js_generator,
 )
+from .chart_views import CommanderDashboard
 from .ajax_datatables import AjaxJournalLog
 
 app_name = "commander"
 
 urlpatterns = [
-    path("profile/", about_commander, name="profile"),
-    path("fleet_carrier/", cmdr_fleet_carrier, name="fleet_carrier"),
-    path("sync_fleet_carrier/", sync_fleet_carrier, name="sync_fleet_carrier"),
-    path("initial_setup/", initial_setup, name="initial_setup"),
-    path("game_journal/", game_journal, name="game_journal"),
-    path("game_journal/upload/", game_journal_upload, name="game_journal_upload"),
-    path("activities_report/", activities_report, name="activities_report"),
-    path("datatable/journal_log", AjaxJournalLog.as_view(), name="ajax_journal_log"),
     path(
         "datatable/report/commander/<slug:report>/",
         activities_report,
         name="ajax_activities_report",
     ),
+    path("activities_report/", activities_report, name="activities_report"),
+    path(
+        "chart/<slug:report_id>/", CommanderDashboard.as_view(), name="commander_chart"
+    ),
+    path(
+        "chart/js/<slug:report_id>/chart.js",
+        chart_js_generator,
+        name="chart_js_generator",
+    ),
+    path("dashboard/", dashboard, name="dashboard"),
+    path("datatable/journal_log", AjaxJournalLog.as_view(), name="ajax_journal_log"),
+    path("fleet_carrier/", cmdr_fleet_carrier, name="fleet_carrier"),
+    path("game_journal/", game_journal, name="game_journal"),
+    path("game_journal/upload/", game_journal_upload, name="game_journal_upload"),
+    path("initial_setup/", initial_setup, name="initial_setup"),
+    path("profile/", about_commander, name="profile"),
+    path("sync_fleet_carrier/", sync_fleet_carrier, name="sync_fleet_carrier"),
 ]
