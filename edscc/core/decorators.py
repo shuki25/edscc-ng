@@ -27,6 +27,7 @@ def cached(name=None, request=False, timeout=300, request_list=None):
 
     def _cached(f):
         def __cached(*args, **kwargs):
+            # log.debug("args=%s, kwargs=%s" % (args, kwargs))
             if request:
                 obj = args[0]
                 attr_list = [attribute for attribute in dir(obj)]
@@ -36,19 +37,20 @@ def cached(name=None, request=False, timeout=300, request_list=None):
                         params[a] = getattr(obj, a)
                 params_sorted = sort(params)
                 key = json.dumps(
-                    [id(f), params_sorted, sort(kwargs)], separators=(",", ":")
+                    [name, params_sorted, sort(kwargs)], separators=(",", ":")
                 )
             else:
-                key = json.dumps([id(f), args, sort(kwargs)], separators=(",", ":"))
-            extended_key = "%s:%s" % (name, key)
-            hashed_key = md5(extended_key.encode("utf-8")).hexdigest()
-            cache_value = cache.get(hashed_key)
+                key = json.dumps([name, args, sort(kwargs)], separators=(",", ":"))
+            # log.debug("key=%s" % key)
+            hashed_key = md5(key.encode("utf-8")).hexdigest()
+            extended_key = "%s:%s" % (name, hashed_key)
+            cache_value = cache.get(extended_key)
             if cache_value is not None:
                 log.info("returning cached result")
                 return cache_value
             result = f(*args, **kwargs)
             log.info("caching result: %s %s" % (name, id(f)))
-            cache.set(hashed_key, result, timeout=timeout)
+            cache.set(extended_key, result, timeout=timeout)
             return result
 
         return __cached
