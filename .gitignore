@@ -325,4 +325,5 @@ edscc/media/
 
 .pytest_cache/
 
-
+# Misc
+requirements/requirements.txt

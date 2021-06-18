@@ -14,7 +14,7 @@
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.7 (venv)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (edscc-ng)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jquery.dataTables" level="application" />
     <orderEntry type="library" name="dataTables.bootstrap4" level="application" />
@@ -35,6 +35,14 @@
     <option name="DOC_DIR" value="$MODULE_DIR$/docs" />
   </component>
   <component name="TemplatesService">
+    <option name="templateFileTypes">
+      <list>
+        <option value="HTML" />
+        <option value="XHTML" />
+        <option value="XML" />
+        <option value="JavaScript" />
+      </list>
+    </option>
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
     <option name="TEMPLATE_FOLDERS">
       <list>
