@@ -13,7 +13,7 @@ from edscc.core.session_tracker import SessionTrackerManager
 log = get_task_logger(__name__)
 
 
-@celery_app.task(name="edscc.commander.tasks.parse_journal_file")
+@celery_app.task(name="edscc.commander.tasks.parse_journal_file", soft_time_limit=300)
 def parse_journal_file(user_id):
     try:
         user = User.objects.get(id=user_id)
