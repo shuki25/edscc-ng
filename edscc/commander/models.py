@@ -151,6 +151,7 @@ class Commander(models.Model):
 class CrimeType(models.Model):
     name = models.CharField(max_length=255)
     alias = models.CharField(max_length=512, blank=True, null=True)
+    category = models.CharField(max_length=25, blank=True, null=True)
 
     class Meta:
         managed = True

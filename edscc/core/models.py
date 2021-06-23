@@ -87,6 +87,7 @@ class Debug(models.Model):
 class EarningType(models.Model):
     name = models.CharField(max_length=40)
     mission_flag = models.IntegerField()
+    category = models.CharField(max_length=25, blank=True, null=True)
 
     class Meta:
         managed = True
