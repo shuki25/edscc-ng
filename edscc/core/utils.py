@@ -311,6 +311,17 @@ def timezone_aware(text):
     return utc.localize(datetime.strptime(text, date_format))
 
 
+def merge_dicts(*dict_args):
+    """
+    Given any number of dictionaries, shallow copy and merge into a new dict,
+    precedence goes to key-value pairs in latter dictionaries.
+    """
+    result = {}
+    for dictionary in dict_args:
+        result.update(dictionary)
+    return result
+
+
 class Paginator:
     def __init__(self, **kwargs):
         exclude_list = ["offset", "limit", "count", "width"]
