@@ -26,7 +26,7 @@ from .views import (
     activities_report,
     chart_js_generator,
 )
-from .chart_views import CommanderDashboard
+from .chart_views import CommanderDashboardLineChart, CommanderDashboardPieChart
 from .ajax_datatables import AjaxJournalLog
 
 app_name = "commander"
@@ -39,7 +39,14 @@ urlpatterns = [
     ),
     path("activities_report/", activities_report, name="activities_report"),
     path(
-        "chart/<slug:report_id>/", CommanderDashboard.as_view(), name="commander_chart"
+        "chart/line/<slug:report_id>/",
+        CommanderDashboardLineChart.as_view(),
+        name="commander_line_chart",
+    ),
+    path(
+        "chart/pie/<slug:report_id>/",
+        CommanderDashboardPieChart.as_view(),
+        name="commander_pie_chart",
     ),
     path(
         "chart/js/<slug:report_id>/chart.js",

@@ -13,9 +13,9 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from ..core.session_tracker import SessionTrackerManager
-from ..core.utils import evaluate_journal_log
+from ..core.utils import evaluate_journal_log, merge_dicts
 from .ajax_datatables import activities_report_callable, activities_report_title
-from .chart_views import DashboardReports
+from .chart_views import DashboardLineReports, DashboardPieReports
 from .forms import JournalLogForm
 from .models import CommanderInfo, UserProfile
 from .tasks import parse_journal_file
@@ -153,23 +153,28 @@ def game_journal_upload(request):
 
 @login_required
 def dashboard(request):
-    data = {"reports": DashboardReports().all_reports()}
+    data = {
+        "line_charts": DashboardLineReports().all_reports(),
+        "pie_charts": DashboardPieReports().all_reports(),
+    }
     return render(request, "commander/dashboard.html", context=data)
 
 
 @login_required
 @cache_page(300)
 def chart_js_generator(request, *args, **kwargs):
-    reports = DashboardReports()
-
+    reports = merge_dicts(
+        DashboardLineReports().all_reports(),
+        DashboardPieReports().all_reports(),
+    )
+    # log.debug("reports=%s" % reports)
     if "report_id" in kwargs:
-        rs = reports.get_report(kwargs["report_id"])
+        rs = reports[kwargs["report_id"]]
         if not rs:
             return HttpResponseNotFound(kwargs["report_id"])
     else:
         return HttpResponseBadRequest
 
-    log.debug("context=%s" % rs)
-    return render(
-        request, "core/chart_tpl.js", context=rs, content_type="text/javascript"
-    )
+    template = "core/%s" % rs["js"]
+    # log.debug("context=%s" % rs)
+    return render(request, template, context=rs, content_type="text/javascript")

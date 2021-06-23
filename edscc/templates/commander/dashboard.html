@@ -3,32 +3,117 @@
 {% get_current_language as LANGUAGE_CODE %}
 {% block css %}
     {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
 {% endblock %}
 {% block content %}
     <div class="container-fluid">
-        {% for key, row in reports.items %}
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                    <h5 class="card-header">
-                        <i class="{{ row.icon }} mr-2"></i>{% trans row.title %}
-                    </h5>
                     <div class="card-body">
-                        <canvas id="{{ row.chart_id }}" style="height: 30vh; width: 100%"></canvas>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                    <i class="fa fa-calendar"></i>&nbsp;
+                                    <span></span> <i class="fa fa-caret-down"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                Cell 2
+                            </div>
+                            <div class="col-md-3">
+                                Cell 3
+                            </div>
+                            <div class="col-md-3">
+                                Cell 4
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    {% endfor %}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    {% for key, row in pie_charts.items %}
+                        {% if forloop.counter0|divisibleby:4 %}
+                            {% if forloop.counter0 %}</div>
+                                <div class="row">{% endif %}
+                        {% endif %}
+                    <div class="col-md-3">
+                        <div class="card">
+                            <h5 class="card-header">
+                                <i class="{{ row.icon }} mr-2"></i>{% trans row.title %}
+                            </h5>
+                            <div class="card-body">
+                                <div class="chart-container" style="position: relative;">
+                                    <canvas id="{{ row.chart_id }}"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% for key, row in line_charts.items %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <h5 class="card-header">
+                                    <i class="{{ row.icon }} mr-2"></i>{% trans row.title %}
+                                </h5>
+                                <div class="card-body">
+                                    <canvas id="{{ row.chart_id }}" style="height: 30vh; width: 100%"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
+
 {% endblock %}
 {% block js %}
     {{ block.super }}
     <!--[if lte IE 8]>
             <script src="{% static 'js/excanvas.js' %}"></script>
     <![endif]-->
-    <script type="text/javascript" src="{% static 'js/Chart.min.js' %}"></script>
-    {% for key, row in reports.items %}
+    <script type="text/javascript">
+        $(function () {
+
+            var start = moment().subtract(29, 'days');
+            var end = moment();
+
+            function cb(start, end) {
+                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+            }
+
+            $('#reportrange').daterangepicker({
+                startDate: start,
+                endDate: end,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                }
+            }, cb);
+
+            cb(start, end);
+
+        });
+    </script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.1/chart.min.js" integrity="sha512-dCMdvmRC8BuFAgdVMPrm5MJauIcozqGY8krxgbXyUhVTvR3vzH0x2qW2nB4jFdeymins2ZubDv7osK1roNBKjg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    {#    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js" integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>#}
+    {#    <script type="text/javascript" src="{% static 'js/Chart.min.js' %}"></script>#}
+    {% for key, row in pie_charts.items %}
+        <script type="text/javascript" src="{% url "commander:chart_js_generator" key %}"></script>
+    {% endfor %}
+    {% for key, row in line_charts.items %}
         <script type="text/javascript" src="{% url "commander:chart_js_generator" key %}"></script>
     {% endfor %}
 {% endblock %}
