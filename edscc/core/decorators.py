@@ -31,7 +31,7 @@ def cached(name=None, request=False, timeout=300, request_list=None):
             if request:
                 obj = args[0]
                 attr_list = [attribute for attribute in dir(obj)]
-                params["user:email"] = obj.user.email
+                params["user:email"] = obj.user.email if obj.user.is_authenticated else "anonymous"
                 for a in attr_list:
                     if a in request_list:
                         params[a] = getattr(obj, a)

@@ -107,6 +107,7 @@ def cmdr_fleet_carrier(request):
             tmp[value.event.lower()] = dict(sort_list)
 
         operation_statistics = {}
+        operation_statistics_timestamp = None
 
         if "statistics" in tmp:
             if "FLEETCARRIER" in tmp["statistics"]:

@@ -1,4 +1,5 @@
 import logging
+from json import JSONDecodeError
 
 import requests
 from allauth.socialaccount.models import SocialToken
@@ -65,7 +66,11 @@ class Capi:
                 },
                 params=payload,
             )
-            data = r.json()
+            try:
+                data = r.json()
+            except JSONDecodeError as e:
+                status = {"Status": "500", "Error": "%s" % repr(e)}
+                data = {}
             r.raise_for_status()
             status["Status"] = r.status_code
         except requests.exceptions.Timeout as e:
