@@ -40,7 +40,7 @@ def about_commander(request):
     if "statistics" in data:
         for tag in tags_ignored:
             data["statistics"].pop(tag, None)
-        data["num_categories_column"] = int(len(data["statistics"]) / 3)
+        data["num_categories_column"] = round((len(data["statistics"]) / 3) + 0.4)
 
     return render(request, "commander/commander_profile2.html", context=data)
 
