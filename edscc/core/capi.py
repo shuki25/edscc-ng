@@ -175,6 +175,19 @@ class Capi:
         status, data = self.api_fetch(self.squadron_url + "/tags/available", user)
         return status, data
 
+    def get_squadron_leaderboard(
+        self, user, leaderboard_type="combat", platform="PC", squadron_id=-1
+    ):
+        payload = {
+            "squadronId": squadron_id,
+            "leaderboardType": leaderboard_type,
+            "platform": platform,
+        }
+        status, data = self.api_fetch(
+            self.squadron_url + "/season/leaderboards", user, payload=payload
+        )
+        return status, data
+
     def import_squadron_tags(self, user):
         qs = Tags.objects.filter(collection="activities")
         print(qs)

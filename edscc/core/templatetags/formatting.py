@@ -37,3 +37,8 @@ def convert_str_date(value):
     if value == "now":
         return datetime.now()
     return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+
+
+@register.filter(name="abs")
+def abs_filter(value):
+    return abs(value)

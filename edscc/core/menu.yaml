@@ -90,7 +90,7 @@ squadron:
     group: ["Squadron"]
   4:
     item: "Leaderboard"
-    route: "leaderboard"
+    route: "squadron:leaderboard"
     icon: "ed-asset ed-asset-icon-leaderboard_website"
     group: ["Squadron"]
   #    5:

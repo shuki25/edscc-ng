@@ -23,6 +23,7 @@ from .views import (
     finish_activate_squadron,
     settings,
     roster,
+    leaderboard,
 )
 
 from .ajax_datatables import AjaxMemberRoster
@@ -40,4 +41,5 @@ urlpatterns = [
     path("settings/", settings, name="settings"),
     path("roster/", roster, name="roster"),
     path("datatable/roster/", AjaxMemberRoster.as_view(), name="roster_datatable"),
+    path("leaderboard/", leaderboard, name="leaderboard"),
 ]

@@ -169,3 +169,15 @@ class SquadronRoster(models.Model):
     class Meta:
         managed = True
         db_table = "squadron_roster"
+
+
+class Leaderboard(models.Model):
+    squadron = models.ForeignKey(Squadron, models.CASCADE)
+    platform = models.CharField(max_length=4, db_index=True)
+    leaderboard_type = models.CharField(max_length=12, db_index=True)
+    content = models.JSONField()
+    last_updated = models.DateField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        managed = True
+        db_table = "leaderboard"

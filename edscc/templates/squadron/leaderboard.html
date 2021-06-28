@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load i18n gravatar account humanize static formatting %}
+{% get_current_language as LANGUAGE_CODE %}
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-secondary">
+                    <h5 class="card-header">
+                        <i class="ed-asset ed-asset-icon-leaderboard_website mr-2"></i>{% trans 'Squadron Leaderboard' %}
+                    </h5>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    {% for row in leaderboards %}
+                        {% if forloop.counter0|divisibleby:3 %}
+                            {% if forloop.counter0 %}</div>
+                                <div class="row">{% endif %}
+                        {% endif %}
+                        <div class="col-md-4">
+                            <div class="card">
+                                <h5 class="card-header">
+                                    <i class="{{ row.icon }} mr-2"></i>{% trans row.type|title %}
+                                </h5>
+                                <div class="card-body">
+                                    <table class="table table-sm table-striped table-hover table-dark">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col" style="width: 70px;">#</th>
+                                            <th scope="col">{% trans 'Squadron' %}</th>
+                                            <th scope="col" class="text-right" style="width: 100px;">
+                                                {% trans 'Score' %}
+                                            </th>
+                                            <th scope="col" class="text-right" style="width: 50px;">Change</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for i in row.board %}
+                                            <tr
+                                                    {% if i.squadron == fdev_id %} class="text-orange text-bold"{% endif %}>
+                                                <th scope="row">{{ i.rank|add:"1" }} {% if i.delta_rank %}{% if i.delta_rank > 0 %}<span class="text-xs ml-1 text-success"><i class="fas fa-chevron-up">{% else %}<span class="text-xs ml-1 text-danger"><i class="fas fa-chevron-down">{% endif %}</i> {{ i.delta_rank|abs|floatformat }}</span>{% endif %}</th>
+                                                <td>{{ i.name }}</td>
+                                                <td class="text-right">{{ i.score|intcomma }}</td>
+                                                <td class="text-right">{% if i.delta_score %}{{ i.delta_score|floatformat:"1" }}%{% endif %}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

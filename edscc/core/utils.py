@@ -7,6 +7,7 @@ from datetime import datetime
 from urllib.parse import parse_qs, urlencode, urlparse
 
 import filetype
+import numpy as np
 import requests
 from django.apps import apps
 from django.conf import settings
@@ -320,6 +321,13 @@ def merge_dicts(*dict_args):
     for dictionary in dict_args:
         result.update(dictionary)
     return result
+
+
+def percentage_diff(old, new):
+    if isinstance(old, int) and isinstance(new, int):
+        return round(((new - old) / old) * 100, 1)
+    else:
+        return None
 
 
 class Paginator:

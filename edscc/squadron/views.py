@@ -1,20 +1,22 @@
 import logging
 from urllib.parse import urlencode
 
+import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods, require_POST
 
 from ..commander.models import Commander, UserProfile
 from ..core.capi import Capi
-from ..core.decorators import group_required
+from ..core.decorators import group_required, cached
 from ..core.utils import Paginator
-from ..squadron.models import Faction, Power, Squadron, SquadronRoster
 from .forms import SquadronForm
+from .models import Faction, Leaderboard, Power, Squadron, SquadronRoster
+from .utils import leaderboards_to_df, sync_leaderboard, top_n_leaderboard
 
 log = logging.getLogger(__name__)
 
@@ -257,3 +259,33 @@ def settings(request):
 @group_required("Squadron")
 def roster(request):
     return render(request, "squadron/roster.html", context={})
+
+
+@group_required("Squadron")
+# @cached(name="leaderboard", timeout=300, request=True)
+def leaderboard(request):
+    leaderboards = []
+    sync_leaderboard(request.user, platform=request.user.userprofile.squadron.platform)
+    rs = (
+        Leaderboard.objects.filter(squadron_id=2)
+        .values("last_updated")
+        .distinct()
+        .order_by("-last_updated")[:2]
+    )
+    date_range = [i["last_updated"] for i in rs]
+    current = Leaderboard.objects.filter(
+        squadron_id=request.user.userprofile.squadron_id, last_updated=date_range[0]
+    )
+    previous = Leaderboard.objects.filter(
+        squadron_id=request.user.userprofile.squadron_id, last_updated=date_range[1]
+    )
+    df = leaderboards_to_df(current, previous)
+
+    data = {
+        "leaderboards": top_n_leaderboard(
+            df, fdev_id=request.user.userprofile.squadron.fdev_id
+        ),
+        "fdev_id": request.user.userprofile.squadron.fdev_id,
+    }
+
+    return render(request, "squadron/leaderboard.html", context=data)
