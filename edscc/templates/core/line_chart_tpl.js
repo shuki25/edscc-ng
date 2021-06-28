@@ -1,6 +1,7 @@
 {% load i18n gravatar account humanize static %}
 {% get_current_language as LANGUAGE_CODE %}
 $.get('{% url chart_url report_id %}', function (data) {
+    const COLOR = "white";
     var ctx = $("#{{ chart_id }}").get(0).getContext("2d");
     new Chart(ctx, {
         type: '{{ type }}',
@@ -31,6 +32,7 @@ $.get('{% url chart_url report_id %}', function (data) {
                     display: true,
                     labels: {
                         boxWidth: 20,
+                        color: COLOR,
                     },
                 },
             },
@@ -38,22 +40,25 @@ $.get('{% url chart_url report_id %}', function (data) {
                 y: {
                     title: {
                         display: true,
+                        color: COLOR,
                         text: "{% trans 'Credits' %}",
                     },
                     stacked: false,
                     ticks: {
+                        color: COLOR,
                         callback: function (value, index, ticks) {
                             return value.toLocaleString(locale = "{{ LANGUAGE_CODE }}");
                         }
                     }
                 },
-                xAxes: [{
+                x: {
                     ticks: {
+                        color: COLOR,
                         callback: function (value, index, ticks) {
-                            return value.toLocaleString(locale = "{{ LANGUAGE_CODE }}");
+                            return this.getLabelForValue(value).toLocaleString(locale = "{{ LANGUAGE_CODE }}");
                         }
                     }
-                }]
+                }
             },
             maintainAspectRatio: false
         }

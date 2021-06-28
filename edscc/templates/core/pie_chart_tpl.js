@@ -19,6 +19,7 @@ $.get('{% url chart_url report_id %}', function (data) {
                     position: 'top',
                     labels: {
                         boxWidth: 20,
+                        color: 'white',
                     },
                 },
                 title: {
