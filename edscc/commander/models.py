@@ -220,7 +220,7 @@ class ThargoidActivity(models.Model):
 
 
 class UserProfile(models.Model):
-    user = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     commander_name = models.CharField(max_length=255)
     alternate_email = models.CharField(max_length=180, null=True)
     roles = models.TextField(default="[]")
