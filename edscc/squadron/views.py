@@ -279,6 +279,18 @@ def leaderboard(request):
     previous = Leaderboard.objects.filter(
         squadron_id=request.user.userprofile.squadron_id, last_updated=date_range[1]
     )
+    if len(previous) == 0:
+        available_squadron = (
+            Leaderboard.objects.filter(last_updated=date_range[1])
+            .values("squadron_id")
+            .distinct()
+        )
+        if len(available_squadron):
+            previous = Leaderboard.objects.filter(
+                squadron_id=available_squadron[0]["squadron_id"],
+                last_updated=date_range[1],
+            )
+
     df = leaderboards_to_df(current, previous)
 
     data = {

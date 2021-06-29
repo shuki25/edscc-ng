@@ -183,7 +183,7 @@ def leaderboards_to_df(new_boards, old_boards):
 
     final = pd.concat(frames)
 
-    if isinstance(old_boards, QuerySet):
+    if isinstance(old_boards, QuerySet) and len(old_boards) > 0:
         frames = []
         for row in old_boards:
             df = pd.DataFrame.from_dict(row.content[row.leaderboard_type])
