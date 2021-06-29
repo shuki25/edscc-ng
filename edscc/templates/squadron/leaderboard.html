@@ -1,22 +1,18 @@
 {% extends 'base.html' %}
 {% load i18n gravatar account humanize static formatting %}
 {% get_current_language as LANGUAGE_CODE %}
-{% block css %}
-    {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
-{% endblock %}
 {% block content %}
     <div class="container-fluid">
-        <div class="row">
+        <div class="row ml-1">
             <div class="col-md-12">
-                <div class="card card-secondary">
+                <div class="card shadow card-secondary">
                     <h5 class="card-header">
                         <i class="ed-asset ed-asset-icon-leaderboard_website mr-2"></i>{% trans 'Squadron Leaderboard' %}
                     </h5>
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row ml-1">
             <div class="col-md-12">
                 <div class="row">
                     {% for row in leaderboards %}
@@ -25,7 +21,7 @@
                                 <div class="row">{% endif %}
                         {% endif %}
                         <div class="col-md-4">
-                            <div class="card">
+                            <div class="card shadow">
                                 <h5 class="card-header">
                                     <i class="{{ row.icon }} mr-2"></i>{% trans row.type|title %}
                                 </h5>

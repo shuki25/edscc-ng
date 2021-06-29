@@ -7,9 +7,9 @@
 {% endblock %}
 {% block content %}
     <div class="container-fluid">
-        <div class="row">
+        <div class="row ml-1">
             <div class="col-md-12">
-                <div class="card">
+                <div class="card shadow">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-3">
@@ -34,14 +34,14 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <div class="row">
+                <div class="row ml-1">
                     {% for key, row in pie_charts.items %}
                         {% if forloop.counter0|divisibleby:4 %}
                             {% if forloop.counter0 %}</div>
-                                <div class="row">{% endif %}
+                                <div class="row ml-1">{% endif %}
                         {% endif %}
                     <div class="col-md-3">
-                        <div class="card">
+                        <div class="card shadow">
                             <h5 class="card-header">
                                 <i class="{{ row.icon }} mr-2"></i>{% trans row.title %}
                             </h5>
@@ -55,9 +55,9 @@
                     {% endfor %}
                 </div>
                 {% for key, row in line_charts.items %}
-                    <div class="row">
+                    <div class="row ml-1">
                         <div class="col-md-12">
-                            <div class="card">
+                            <div class="card shadow">
                                 <h5 class="card-header">
                                     <i class="{{ row.icon }} mr-2"></i>{% trans row.title %}
                                 </h5>
