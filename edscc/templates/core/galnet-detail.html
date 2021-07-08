@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n static humanize markdownify %}
+{% load i18n static humanize martortags %}
 {% block content %}
     <div class="container-fluid">
         {% if carousel %}
@@ -25,7 +25,7 @@
                                 <img class="d-block w-100" src="{% static 'img/galnet-news-placeholder.jpg' %}" style="height: 400px; object-fit: cover"/>
                             {% endif %}
                             <p class="card-text">
-                                {{ article.body|markdownify }}
+                                {{ article.body|safe_markdown }}
                             </p>
                         </div>
                         <div class="card-footer text-sm text-orange text-right">

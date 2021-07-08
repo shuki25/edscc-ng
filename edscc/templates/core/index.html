@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load humanize %}
-{% load markdownify %}
+{% load martortags %}
 {% block content %}
 <div class="content">
     <div class="container-fluid">
@@ -22,7 +22,7 @@
                     </h5>
                     <div class="card-body text-sm text-justify">
 {#                        <p class="card-text text-sm">#}
-                            {{ item.news|markdownify }}
+                            {{ item.news|safe_markdown }}
 {#                        </p>#}
                     </div>
                     <div class="card-footer font-xs">

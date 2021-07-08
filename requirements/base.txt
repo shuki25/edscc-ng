@@ -11,7 +11,10 @@ requests==2.25.1 # https://github.com/psf/requests
 PyYAML==5.4.1 # https://github.com/yaml/pyyaml
 celery==5.0.5 # https://github.com/celery/celery
 semantic-version==2.8.5
-markdownify==0.7.0
+Markdown==3.3.4
+# django-markdownify==0.9.0
+martor==1.6.3
+markdownify==0.9.0
 filetype==1.0.7
 jsonlines==2.0.0
 pandas==1.2.5

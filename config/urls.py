@@ -43,6 +43,7 @@ urlpatterns = [
     path("commander/", include(commander_urls, namespace="commander")),
     path("squadron/", include(squadron_urls, namespace="squadron")),
     path("login_required/", login_required_alert, name="login-required"),
+    path("martor/", include("martor.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # API URLS
